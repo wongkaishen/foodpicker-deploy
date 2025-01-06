@@ -10,30 +10,6 @@
 
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-
-<script>
-    var restaurants = {{ restaurants_json|safe }};
-    var map = L.map('map').setView([2.9252, 101.6414], 12); // Adjust zoom level for better overview
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    // Add restaurant markers
-    restaurants.forEach(function(restaurant) {
-        var marker = L.marker([restaurant.latitude, restaurant.longitude]).addTo(map);
-        marker.bindPopup(`
-            <div class="popup-content">
-                <b>${restaurant.name}</b>
-                <p>${restaurant.description}</p>
-                <p><strong>Working Hour:</strong> ${restaurant.opentime}<br>
-                   <strong>Closing Hour:</strong> ${restaurant.closetime}</p>
-                <a href="/restaurant/${restaurant.id}/" target="_blank" class="details-link">View Details</a>
-            </div>
-        `);
-    });
-</script>
-
 <style>
     /* Page Container */
     .all-restaurants-map {
@@ -94,5 +70,29 @@
         color: #fff;
     }
 </style>
+
+<script>
+    var restaurants = {{ restaurants_json|safe }};
+    var map = L.map('map').setView([2.9252, 101.6414], 12); // Adjust zoom level for better overview
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Add restaurant markers
+    restaurants.forEach(function(restaurant) {
+        var marker = L.marker([restaurant.latitude, restaurant.longitude]).addTo(map);
+        marker.bindPopup(`
+            <div class="popup-content">
+                <b>${restaurant.name}</b>
+                <p>${restaurant.description}</p>
+                <p><strong>Working Hour:</strong> ${restaurant.opentime}<br>
+                   <strong>Closing Hour:</strong> ${restaurant.closetime}</p>
+                <a href="/restaurant/${restaurant.id}/" target="_blank" class="details-link">View Details</a>
+            </div>
+        `);
+    });
+</script>
+
 
 {% endblock %}

@@ -14,29 +14,7 @@
 
     <div id="map"></div>
 </div>
-
-<!-- Leaflet Map -->
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-
-<script>
-    var map = L.map('map').setView([{{ restaurant.latitude }}, {{ restaurant.longitude }}], 15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-    L.marker([{{ restaurant.latitude }}, {{ restaurant.longitude }}]).addTo(map)
-        .bindPopup('<b>{{ restaurant.name }}</b><br>{{ restaurant.description }}');
-</script>
-
 <style>
-    /* Global Styles */
-    body {
-        margin: 0;
-        padding: 0;
-    }
-
-    /* Restaurant Details */
     .restaurant-details {
         max-width: 800px;
         margin: 2rem auto;
@@ -69,7 +47,6 @@
         line-height: 1.5;
     }
 
-    /* Map Styling */
     #map {
         height: 500px;
         width: 100%;
@@ -78,5 +55,20 @@
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 </style>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+<script>
+    var map = L.map('map').setView([{{ restaurant.latitude }}, {{ restaurant.longitude }}], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    L.marker([{{ restaurant.latitude }}, {{ restaurant.longitude }}]).addTo(map)
+        .bindPopup('<b>{{ restaurant.name }}</b><br>{{ restaurant.description }}');
+</script>
+
+
 
 {% endblock %}
