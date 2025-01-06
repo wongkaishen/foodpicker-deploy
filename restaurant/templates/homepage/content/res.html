@@ -1,0 +1,64 @@
+{% extends 'homepage/content/main.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="restaurant-list">
+    {% for restaurant in restaurants %}
+    <div class="restaurant-card">
+        <a href="{% url 'restaurant_detail' restaurant.id %}" class="restaurant-name">
+            {{ restaurant.name }}
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    /* Global Styles */
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Restaurant List Container */
+    .restaurant-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Restaurant Card */
+    .restaurant-card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .restaurant-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Restaurant Name Link */
+    .restaurant-name {
+        text-decoration: none;
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+        display: block;
+        text-align: center;
+    }
+
+    .restaurant-name:hover {
+        color: #5e79c2;
+    }
+</style>
+
+{% endblock %}

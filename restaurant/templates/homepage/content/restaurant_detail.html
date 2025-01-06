@@ -1,0 +1,82 @@
+{% extends 'homepage/content/main.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="restaurant-details">
+    <h1 class="restaurant-name">{{ restaurant.name }}</h1>
+    <div class="restaurant-info">
+        <p><strong>Working Hour:</strong> {{ restaurant.opentime }}</p>
+        <p><strong>Closing Hour:</strong> {{ restaurant.closetime }}</p>
+        <p><strong>Price:</strong> RM{{ restaurant.price }}</p>
+        <p class="restaurant-description">{{ restaurant.description }}</p>
+    </div>
+
+    <div id="map"></div>
+</div>
+
+<!-- Leaflet Map -->
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+<script>
+    var map = L.map('map').setView([{{ restaurant.latitude }}, {{ restaurant.longitude }}], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    L.marker([{{ restaurant.latitude }}, {{ restaurant.longitude }}]).addTo(map)
+        .bindPopup('<b>{{ restaurant.name }}</b><br>{{ restaurant.description }}');
+</script>
+
+<style>
+    /* Global Styles */
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Restaurant Details */
+    .restaurant-details {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .restaurant-name {
+        font-size: 2rem;
+        color: #333;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .restaurant-info p {
+        margin: 0.5rem 0;
+        color: #555;
+        font-size: 1rem;
+    }
+
+    .restaurant-info strong {
+        color: #222;
+    }
+
+    .restaurant-description {
+        margin-top: 1rem;
+        color: #666;
+        line-height: 1.5;
+    }
+
+    /* Map Styling */
+    #map {
+        height: 500px;
+        width: 100%;
+        margin-top: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+{% endblock %}

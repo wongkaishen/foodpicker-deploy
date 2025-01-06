@@ -1,0 +1,148 @@
+{% extends 'homepage/content/main.html' %}
+{% block content %}
+{% load static %}
+
+{% for message in messages %}
+<div class="aleat alert-{{message.tags}} alert-dismissible fade show" role="alert">
+    <strong>Messages:</strong> {{message}}
+    <button type="button" class="button" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{% endfor %}
+<link rel="stylesheet" href="{% static 'css/accounts/signup.css' %}">
+
+<body>
+    <div class="container">
+        <div id="LoginAndRegistrationForm">
+            <h1 id="formTitle">Register</h1>
+            <div id="formSwitchBtn">
+                <button onclick="ShowRegistrationForm()" id="ShowRegistrationBtn" class="active">Registration</button>
+                <button onclick="ShowLoginForm()" id="ShowLoginBtn">Login</button>
+            </div>
+
+            <div id="RegistrationFrom">
+                <form action="/signup" method="POST" class="signup_main">
+                    {% csrf_token %}
+                    <div class="center">
+                        <input type="text" id="username" class="input-text" name="username"
+                            placeholder="Create a Username" required>
+                        <input type="text" id="fname" class="input-text" name="fname"
+                            placeholder="Enter your First Name" required>
+                        <input type="text" id="lname" class="input-text" name="lname" placeholder="Enter your Last Name"
+                            required>
+                        <input type="text" id="email" class="input-text mt-10" name="email"
+                            placeholder="Enter your Email Address" required>
+                        <input type="password" id="reg_pass1" class="mt-10 input-text" name="pass1"
+                            placeholder="Create a password" required>
+                        <input type="password" id="reg_pass2" class="mt-10 input-text" name="pass2"
+                            placeholder="Confirm Your Password" required>
+                        <input type="checkbox" id="showRegPasswordCheckbox" onclick="toggleRegPasswordVisibility()">
+                        Show Password
+                    </div>
+                    <div class="center mt-20">
+                        <input onclick="return ValidateRegistrationForm();" class="Submit-Btn" type="submit"
+                            value="Registration" id="RegistrationitBtn">
+                    </div>
+                </form>
+                <p class="center mt-20 already-have-account">
+                    Already have an account?
+                    <a href="#" onclick="ShowLoginForm()">Login now</a>
+                </p>
+            </div>
+
+            <div id="LoginFrom" style="display:none;">
+                <form action="{% url 'signin' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="center">
+                        <input type="text" id="login_username" class="input-text" name="username"
+                            placeholder="Enter your Username" required>
+                        <input type="password" id="login_pass1" class="mt-10 input-text" name="pass1"
+                            placeholder="Enter your password" required>
+                        <input type="checkbox" id="showLoginPasswordCheckbox" onclick="toggleLoginPasswordVisibility()">
+                        Show Password
+                    </div>
+                    <div class="forgot-pass-remember-me mt-10">
+                        <div class="forgot-pass">
+                            <a id="ForgotPassword" href="JavaScript:void(0);" onclick="ShowForgotPasswordForm()">Forgot
+                                Password?</a>
+                        </div>
+                    </div>
+                    <div class="center mt-20">
+                        <input onclick="return ValidateLoginForm();" class="Submit-Btn" type="submit" value="Login"
+                            id="LoginBtn">
+                    </div>
+                </form>
+                <p class="center mt-20 dont-have-account">
+                    Don't have an account?
+                    <a href="JavaScript:void(0);" onclick="ShowRegistrationForm()">Register now</a>
+                </p>
+            </div>
+
+            <div id="ForgotPasswordForm" style="display:none;">
+                <form action="">
+                    <div class="center mt-20">
+                        <input class="input-text" type="email" id="forgotPassEmail" placeholder="Email Address">
+                    </div>
+                    <div class="center mt-20">
+                        <input onclick="return ValidateForgotPasswordForm();" class="Submit-Btn" type="submit"
+                            value="Reset Password" id="PasswordResetBtn">
+                    </div>
+                </form>
+                <p class="center mt-20 already-have-account">
+                    Back to the <a href="JavaScript:void(0);" onclick="ShowLoginForm()">Login page</a> | <a
+                        href="JavaScript:void(0);" onclick="ShowRegistrationForm()">Registration page</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/accounts/signup/main.js' %}" type="text/javascript"></script>
+    <script src="{% static 'js/accounts/signup/validation.js' %}" type="text/javascript"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            ShowRegistrationForm();
+        });
+
+        function toggleRegPasswordVisibility() {
+            var pass1 = document.getElementById("reg_pass1");
+            var pass2 = document.getElementById("reg_pass2");
+            var checkbox = document.getElementById("showRegPasswordCheckbox");
+            if (checkbox.checked) {
+                pass1.type = "text";
+                pass2.type = "text";
+            } else {
+                pass1.type = "password";
+                pass2.type = "password";
+            }
+        }
+
+        function toggleLoginPasswordVisibility() {
+            var pass1 = document.getElementById("login_pass1");
+            var checkbox = document.getElementById("showLoginPasswordCheckbox");
+            if (checkbox.checked) {
+                pass1.type = "text";
+            } else {
+                pass1.type = "password";
+            }
+        }
+
+        function resetRegPasswordVisibility() {
+            var pass1 = document.getElementById("reg_pass1");
+            var pass2 = document.getElementById("reg_pass2");
+            var checkbox = document.getElementById("showRegPasswordCheckbox");
+            pass1.type = "password";
+            pass2.type = "password";
+            checkbox.checked = false;
+        }
+
+        function resetLoginPasswordVisibility() {
+            var pass1 = document.getElementById("login_pass1");
+            var checkbox = document.getElementById("showLoginPasswordCheckbox");
+            pass1.type = "password";
+            checkbox.checked = false;
+        }
+    </script>
+</body>
+
+{% endblock %}

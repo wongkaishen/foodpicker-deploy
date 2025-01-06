@@ -1,0 +1,42 @@
+{% extends 'homepage/content/main.html' %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/accounts/signup.css' %}">
+
+<body>
+    <div class="container">
+
+        <div id="LoginAndRegistrationForm">
+            <h1 id="formTitle">Register</h1>
+
+            <div id="RegistrationFrom">
+
+            </div>
+            <div id="LoginFrom">
+
+            </div>
+            <div id="ForgotPasswordForm">
+                <form action="">
+                    <div class="center mt-20">
+                        <input class="input-text " type="email" id="forgotPassEmail" placeholder="Email Address">
+                    </div>
+                    <div class="center mt-20">
+                        <input onclick="return ValidateForgotPasswordForm();" class="Submit-Btn" type="submit"
+                            value="Reset Password" id="PasswordResetBtn">
+                    </div>
+                </form>
+                <p class="center mt-20 already-have-account">
+                    Click Here to <a href={% url "signup" %}>Create New Account</a>
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="{% static 'js\accounts\signup\main.js' %}" type="text/javascript"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () {
+            ShowForgotPasswordForm();
+        });</script>
+</body>
+
+{% endblock %}

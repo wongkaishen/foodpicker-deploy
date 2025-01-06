@@ -1,0 +1,27 @@
+{% extends 'homepage/content/main.html' %}
+
+{% load static %}
+{% block content %}
+
+{% for message in messages %}
+<div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+    <strong>Messages:</strong> {{message}}
+</div>
+{% endfor %}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Restaurant Request Form</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Location Submitted</title>
+</head>
+<body>
+    <h2>Location Submitted Successfully</h2>
+</body>
+</html>
+
+
+{% endblock %}

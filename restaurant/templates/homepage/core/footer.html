@@ -1,0 +1,18 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/core/footer.css' %}">
+<div class="footer">
+
+    <ul class="nav justify-content-center border-bottom ">
+        <li class="nav-item"><a href="{% url 'res.home' %}" class="nav-link px-2 ">Home</a></li>
+        <li class="nav-item"><a href="{% url 'res.res' %}" class="nav-link px-2 ">Restaurant</a>
+        </li>
+        <li class="nav-item"><a href="{% url 'res.map' %}" class="nav-link px-2 ">Map</a></li>
+        <li class="nav-item"><a href="{% url 'res.contact' %}" class="nav-link px-2 ">Contact</a>
+        </li>
+        <li class="nav-item"><a href="{% url 'res.about' %}" class="nav-link px-2">About</a>
+        </li>
+    </ul>
+
+    <p class="text-center ">@ 2024 Foodpicker by Micheal Wong </p>
+
+</div>
