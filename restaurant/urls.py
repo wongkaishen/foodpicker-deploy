@@ -1,7 +1,9 @@
 from django.urls import path
 from . import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
+    path("login/", auth_views.LoginView.as_view(template_name="accounts/signin.html"), name="login"),
     path('',views.home,name="res.home"),#redirect to home
     path('about/',views.about,name="res.about"),   #redirect to about page
     path('search/',views.search,name="res.search"),  #redirect to search page

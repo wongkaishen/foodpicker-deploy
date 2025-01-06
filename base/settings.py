@@ -43,7 +43,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-
+LOGIN_URL = "/signup/"
 
 
 # Application definition
@@ -109,7 +109,7 @@ WSGI_APPLICATION = "base.wsgi.application"
 # }
 
 DATABASES = {
-    "default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
+    "default": dj_database_url.parse("postgresql://foodpickerdb_tta9_user:I4IPU0JywQu53aUmCX6ldIbTCnpTn6KQ@dpg-cttrlra3esus739619rg-a.oregon-postgres.render.com/foodpickerdb_tta9")
 }
 
 

@@ -2,18 +2,6 @@
 {% load static %}
 
 {% block content %}
-
-<div class="restaurant-details">
-    <h1 class="restaurant-name">{{ restaurant.name }}</h1>
-    <div class="restaurant-info">
-        <p><strong>Working Hour:</strong> {{ restaurant.opentime }}</p>
-        <p><strong>Closing Hour:</strong> {{ restaurant.closetime }}</p>
-        <p><strong>Price:</strong> RM{{ restaurant.price }}</p>
-        <p class="restaurant-description">{{ restaurant.description }}</p>
-    </div>
-
-    <div id="map"></div>
-</div>
 <style>
     .restaurant-details {
         max-width: 800px;
@@ -55,6 +43,24 @@
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 </style>
+
+<div class="restaurant-details">
+    <h1 class="restaurant-name">{{ restaurant.name }}</h1>
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        <strong>Messages:</strong> {{ message }}
+    </div>
+    {% endfor %}
+    <div class="restaurant-info">
+        <p><strong>Working Hour:</strong> {{ restaurant.opentime }}</p>
+        <p><strong>Closing Hour:</strong> {{ restaurant.closetime }}</p>
+        <p><strong>Price:</strong> RM{{ restaurant.price }}</p>
+        <p class="restaurant-description">{{ restaurant.description }}</p>
+    </div>
+
+    <div id="map"></div>
+</div>
+
 
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />

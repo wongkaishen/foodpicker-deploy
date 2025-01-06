@@ -1,5 +1,6 @@
 import json
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404 , render
 from django.contrib.auth.models import User
@@ -13,6 +14,7 @@ from .tokens import generate_token
 from .models import Restaurant
 from .forms import RestaurantForm
 from geopy.geocoders import Nominatim
+from functools import wraps
 
 
 # Create your views here.
@@ -104,6 +106,14 @@ def signup(request):  # signup view
     context = {"title": "Sign Up"}
     return render(request, "homepage/accounts/signup.html", context)
 
+def signup_required(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('signup')  # Redirect to the signup page
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
 
 def signin(request):
     if request.method == "POST":
@@ -146,7 +156,7 @@ def activate(request, uidb64, token):
     else:
         return render(request, "verification\activation_failed.html")
 
-
+@signup_required
 def get_res_list(
     request,
 ):  # used to show the restaurnt id or sort out the restaurant using id's
@@ -157,14 +167,14 @@ def get_res_list(
     }
     return render(request, "homepage/content/res.html", context)
 
-
+@signup_required
 def get_res_detail(request, id):
     restaurant = get_object_or_404(Restaurant, id=id)
     return render(
         request, "homepage/content/restaurant_detail.html", {"restaurant": restaurant}
     )
 
-
+@signup_required
 def get_res_map(request):
     # Get all restaurants from the database
     restaurants = Restaurant.objects.all()
@@ -199,41 +209,40 @@ def geocode_address(address):
     return 0.0, 0.0  # Default coordinates (e.g., somewhere in the middle of the map)
 
 
-
+@signup_required
 def location_view(request):
     if request.method == "POST":
         form = RestaurantForm(request.POST)
         if form.is_valid():
-            # Get the full address from the form
-            address = f"{form.cleaned_data['street_address']}, {form.cleaned_data['city']}, {form.cleaned_data['state']}, {form.cleaned_data['country']}"
+            restaurant = form.save(commit=False)
 
-            # Geocode the address to get latitude and longitude
-            latitude, longitude = geocode_address(address)
+            # If address is provided, attempt geocoding
+            if all([
+                form.cleaned_data["street_address"],
+                form.cleaned_data["city"],
+                form.cleaned_data["state"],
+                form.cleaned_data["postal_code"],
+                form.cleaned_data["country"],
+            ]):
+                # Generate full address string
+                address = f"{form.cleaned_data['street_address']}, {form.cleaned_data['city']}, {form.cleaned_data['state']}, {form.cleaned_data['postal_code']}, {form.cleaned_data['country']}"
+                latitude, longitude = geocode_address(address)
+                if latitude is not None and longitude is not None:
+                    restaurant.latitude = latitude
+                    restaurant.longitude = longitude
+                else:
+                    return render(
+                        request,
+                        "homepage/content/form_failed.html",
+                        {"message": "Address could not be geocoded. Please check the address and try again."},
+                    )
 
-            if latitude and longitude:
-                # If geocoding is successful, assign the coordinates to the form instance
-                restaurant = form.save(commit=False)
-                restaurant.latitude = latitude
-                restaurant.longitude = longitude
-                restaurant.save()
-
-                # Render a success page
-                return render(
-                    request,
-                    "homepage/content/form_success.html",
-                    {"message": "Restaurant added successfully!"},
-                )
-
-            else:
-                # If geocoding failed, render an error message
-                return render(
-                    request,
-                    "homepage/content/form_success.html",
-                    {
-                        "message": "Address could not be geocoded. Please check the address."
-                    },
-                )
-
+            restaurant.save()
+            return render(
+                request,
+                "homepage/content/form_success.html",
+                {"message": "Restaurant added successfully!"},
+            )
     else:
         form = RestaurantForm()
 
