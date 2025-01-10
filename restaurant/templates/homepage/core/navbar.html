@@ -1,46 +1,45 @@
 {% load static %}
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css"
+/>
 
 <!--=============== CSS ===============-->
-<link rel="stylesheet" href="{% static 'css/core/styles.css' %}">
+<link rel="stylesheet" href="{% static 'css/core/styles.css' %}" />
 <!--==================== HEADER ====================-->
 <header class="header" id="header">
   <nav class="nav container">
     <a href="{% url 'res.home' %}" class="nav__link">FoodPicker</a>
+
+    <!-- Mobile navigation -->
+    <div class="nav__toggle" id="nav-toggle" >
+      <i class="ri-menu-line" ></i>
+    </div>
 
     <div class="nav__menu" id="nav-menu">
       <ul class="nav__list">
         <li class="nav__item">
           <a href="{% url 'res.home' %}" class="nav__link">Home</a>
         </li>
-
         <li class="nav__item">
           <a href="{% url 'res.res' %}" class="nav__link">Restaurant</a>
         </li>
-
         <li class="nav__item">
           <a href="{% url 'res.map' %}" class="nav__link">Map</a>
         </li>
-
         <li class="nav__item">
           <a href="{% url 'res.contact' %}" class="nav__link">Contact</a>
         </li>
-
         <li class="nav__item">
           <a href="{% url 'res.about' %}" class="nav__link">About Us</a>
         </li>
-        <li class="dropdown">
-          <button class="dropbtn">More</button>
-          <div class="dropdown-content">
-            <a href="{% url 'res.form' %}">Form</a>
-            <a href="#">Coming Soon</a>
-            <a href="#">Coming Soon</a>
-          </div>
+        <li class="nav__item">
+          <a href="{% url 'res.form' %}" class="nav__link">Form</a>
         </li>
+        
       </ul>
 
-      <!-- Close button -->
       <div class="nav__close" id="nav-close">
         <i class="ri-close-line"></i>
       </div>
@@ -50,39 +49,39 @@
       <!-- Search button -->
       <i class="ri-search-line nav__search" id="search-btn"></i>
 
-      <!-- User actions -->
-      <li class="nav container">
-        {% if user.is_authenticated %}
-        <div class="nav__menu">
-          <h3>Welcome, {{ user.username }}</h3>
-          <a href="/signout" class="nav__link">Sign out</a>
-        </div>
-        {% else %}
-        <a href="#" class="ri-user-line nav__login" id="login-btn"></a>
-        {% endif %}
-      </li>
-
       <!-- Toggle button -->
-      <div class="nav__toggle" id="nav-toggle">
-        <i class="ri-menu-line"></i>
+      <div>
+        {% if user.is_authenticated %}
+        <a class="nav__item">
+          <h4>Welcome, {{ user.username }}</h4>
+          <a href="{% url 'signout' %}" class="nav__link nav__logout" style="font-size: medium">Log Out</a>
+        </a>
+        {% else %}
+        <a class="nav__item">
+          <a href="#" class="ri-user-line nav__login" id="login-btn"></a>
+        </a>
+        {% endif %}
       </div>
     </div>
   </nav>
+
 </header>
 
 <!--==================== SEARCH ====================-->
 <div class="search" id="search">
   <form action="" class="search__form">
     <i class="ri-search-line search__icon"></i>
-    <input type="search" placeholder="What are you looking for?" class="search__input">
+    <input
+      type="search"
+      placeholder="What are you looking for?"
+      class="search__input"
+    />
   </form>
 
   <i class="ri-close-line search__close" id="search-close"></i>
 </div>
 
 <!--==================== LOGIN ====================-->
-
-
 
 <div class="login" id="login">
   <form action="{% url 'signin' %}" method="POST" class="login__form">
@@ -92,21 +91,35 @@
     <div class="login__group">
       <div>
         <label for="" class="login__label">Username</label>
-        <input type="text" placeholder="Enter your Username" name="username" class="login__input" required>
+        <input
+          type="text"
+          placeholder="Enter your Username"
+          name="username"
+          class="login__input"
+          required
+        />
       </div>
 
       <div>
         <label for="" class="login__label">Password</label>
-        <input type="password" id="pass1" placeholder="Enter your Password" name="pass1" class="login__input" required>
-        <input type="checkbox" onclick="myFunction()">Show Password
+        <input
+          type="password"
+          id="pass1"
+          placeholder="Enter your Password"
+          name="pass1"
+          class="login__input"
+          required
+        />
+        <input type="checkbox" onclick="myFunction()" />Show Password
       </div>
     </div>
     <div>
       <p class="login__signup">
         You do not have an account? <a href="{% url 'signup' %}">Sign up</a>
       </p>
-      <a href="{% url 'reset_password' %}" class="login__forgot">Forgot password?</a>
-
+      <a href="{% url 'reset_password' %}" class="login__forgot"
+        >Forgot password?</a
+      >
 
       <button type="submit" class="login__button">Log In</button>
     </div>
@@ -114,19 +127,16 @@
   <i class="ri-close-line login__close" id="login-close"></i>
 </div>
 
-
 <script src="{% static 'js\main.js' %}"></script>
 <script>
-function myFunction() {
+  function myFunction() {
     var x = document.getElementById("pass1");
     if (x.type === "password") {
       x.type = "text";
     } else {
       x.type = "password";
     }
-  }</script>
+  }
+</script>
 
-
-{% block content %}
-
-{% endblock %}
+{% block content %} {% endblock %}
