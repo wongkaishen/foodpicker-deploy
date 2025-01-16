@@ -109,7 +109,7 @@ WSGI_APPLICATION = "base.wsgi.application"
 # }
 
 DATABASES = {
-    "default": dj_database_url.parse("postgresql://foodpickerdb_tta9_user:I4IPU0JywQu53aUmCX6ldIbTCnpTn6KQ@dpg-cttrlra3esus739619rg-a.oregon-postgres.render.com/foodpickerdb_tta9")
+    "default": dj_database_url.parse("postgresql://foodpickerdb_zwpk_user:PFgncq1zJKYhMYqemvlba0r79kKE2MQ6@dpg-cu4hmhlumphs73899se0-a.singapore-postgres.render.com/foodpickerdb_zwpk")
 }
 
 
