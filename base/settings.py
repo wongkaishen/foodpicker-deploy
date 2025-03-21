@@ -43,7 +43,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = True
 
 
-ALLOWED_HOSTS = ['127.0.0.1', '.vercel.app']
+ALLOWED_HOSTS = ['*']
 
 LOGIN_URL = "/signup/"
 
@@ -95,7 +95,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "base.wsgi.app"
+WSGI_APPLICATION = "base.wsgi.application"
 
 
 # Database
