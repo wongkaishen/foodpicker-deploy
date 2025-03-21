@@ -1,5 +1,4 @@
 {% extends 'homepage/content/main.html' %}
-
 {% load static %}
 {% block content %}
 
@@ -13,21 +12,133 @@
 
 <div class="form-container">
     <h2 class="form-title">Restaurant Request Form</h2>
+
     <form method="post" class="request-form">
         {% csrf_token %}
+
+        <label for="language-select">Choose Language:</label>
+        <select id="language-select" class="form-control">
+            <option value="en">English</option>
+            <option value="zh">中文 (Chinese)</option>
+            <option value="ms">Bahasa Malaysia</option>
+        </select>
+
+        <label for="search_location">Search Location:</label>
+        <div class="search-container">
+            <input type="text" id="search_location" class="form-control" placeholder="Type an address">
+            <ul id="suggestions" class="dropdown-menu"></ul>
+        </div>
+
         {{ form.as_p }}
+
         <button type="submit" class="submit-button">Submit</button>
     </form>
 </div>
 
-<style>
-    /* Global Styling */
-    body {
-        margin: 0;
-        padding: 0;
-        color: #333;
-    }
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("search_location");
+        const suggestionsList = document.getElementById("suggestions");
+        const languageSelect = document.getElementById("language-select");
+
+        const latitudeInput = document.getElementById("id_latitude");
+        const longitudeInput = document.getElementById("id_longitude");
+        const streetInput = document.getElementById("id_street_address");
+        const cityInput = document.getElementById("id_city");
+        const stateInput = document.getElementById("id_state");
+        const postalCodeInput = document.getElementById("id_postal_code");
+        const countryInput = document.getElementById("id_country");
+
+        let debounceTimer;
+        const cache = new Map();
+
+        function fetchLocations(query) {
+            if (cache.has(query)) {
+                displayResults(cache.get(query));
+                return;
+            }
+
+            const lang = languageSelect.value || 'en';
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=MY&addressdetails=1&extratags=1&accept-language=${lang}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        suggestionsList.style.display = "none";
+                        return;
+                    }
+
+                    const limitedResults = data.slice(0, 5);
+                    cache.set(query, limitedResults);
+                    displayResults(limitedResults);
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                    suggestionsList.style.display = "none";
+                });
+        }
+
+        function displayResults(data) {
+            suggestionsList.innerHTML = "";
+            suggestionsList.style.display = "block";
+
+            data.forEach(place => {
+                const listItem = document.createElement("li");
+                listItem.textContent = place.display_name;
+                listItem.dataset.lat = place.lat;
+                listItem.dataset.lon = place.lon;
+                listItem.dataset.details = JSON.stringify(place.address || {});
+
+                listItem.addEventListener("click", function () {
+                    searchInput.value = place.display_name;
+                    latitudeInput.value = place.lat;
+                    longitudeInput.value = place.lon;
+
+                    const address = JSON.parse(listItem.dataset.details);
+                    streetInput.value = address.road || "";
+                    cityInput.value = address.city || address.town || address.village || "";
+                    stateInput.value = address.state || "";
+                    postalCodeInput.value = address.postcode || "";
+                    countryInput.value = "Malaysia";
+
+                    suggestionsList.style.display = "none";
+                });
+
+                suggestionsList.appendChild(listItem);
+            });
+        }
+
+        searchInput.addEventListener("input", function () {
+            clearTimeout(debounceTimer);
+            const query = searchInput.value.trim();
+            if (query.length < 3) {
+                suggestionsList.style.display = "none";
+                return;
+            }
+            debounceTimer = setTimeout(() => {
+                fetchLocations(query);
+            }, 300);
+        });
+
+        languageSelect.addEventListener("change", function () {
+            if (searchInput.value.trim().length > 0) {
+                fetchLocations(searchInput.value.trim());
+            }
+        });
+
+        document.addEventListener("click", function (event) {
+            if (!searchInput.contains(event.target) && !suggestionsList.contains(event.target)) {
+                suggestionsList.style.display = "none";
+            }
+        });
+    });
+</script>
+
+<style>
     /* Alert Messages */
     .alert-container {
         max-width: 800px;
@@ -45,16 +156,16 @@
         margin: 2rem auto;
         padding: 2rem;
         background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         text-align: center;
     }
 
     .form-title {
         font-size: 2rem;
         margin-bottom: 1.5rem;
-        text-shadow: 2px 2px 4px rgba(33, 155, 236, 0.3); /* Adds a shadow for depth */
-        -webkit-text-stroke: 1px #0468aa; /* Adds a text border */
+        color: #0468aa;
+        text-shadow: 2px 2px 4px rgba(33, 155, 236, 0.3);
     }
 
     /* Form Fields */
@@ -64,14 +175,15 @@
         width: 100%;
         padding: 0.8rem;
         margin-bottom: 1rem;
-        border: 2px solid #000000; /* Text border for inputs */
-        border-radius: 4px;
+        border: 2px solid #0468aa;
+        border-radius: 6px;
         font-size: 1rem;
     }
 
     .request-form input:focus,
     .request-form select:focus,
     .request-form textarea:focus {
+        border-color: #0f1792;
         outline: none;
     }
 
@@ -82,13 +194,43 @@
         color: #fff;
         font-size: 1rem;
         padding: 0.75rem 1.5rem;
-        border-radius: 4px;
+        border-radius: 6px;
         cursor: pointer;
         transition: background-color 0.3s ease;
     }
 
     .submit-button:hover {
         background-color: #0f1792;
+    }
+
+    /* Search Location Dropdown */
+    .search-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .dropdown-menu {
+        list-style: none;
+        background: white;
+        padding: 0;
+        border: 1px solid #ddd;
+        position: absolute;
+        width: 100%;
+        max-height: 200px;
+        overflow-y: auto;
+        display: none;
+        z-index: 1000;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .dropdown-menu li {
+        padding: 10px;
+        cursor: pointer;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .dropdown-menu li:hover {
+        background: #e3f2fd;
     }
 
     /* Responsive Design */

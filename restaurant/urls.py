@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views 
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -12,8 +12,11 @@ urlpatterns = [
     path('signin',views.signin,name="signin"),#redirect home after signin or signup
     path('signout',views.signout,name="signout"),#redirect home after signout
     path('activate/<str:uidb64>/<str:token>/', views.activate, name='activate'), #redirect to home after verification
-    path('form',views.location_view,name="res.form"), #redirect to form
+    path('form/',views.location_view,name="res.form"), #redirect to form
     path('restaurant/',views.get_res_list,name="res.res"), #for the restaurant list
     path('restaurant/<int:id>/', views.get_res_detail, name='restaurant_detail'), #for the restaurant detail id
     path('map/',views.get_res_map,name="res.map"),   #for the whole map view of the restaurant
+    path('password_reset/',views.reset_pass,name="resetpass"), 
+    path('restaurants_within_radius/', views.restaurants_within_radius, name="restaurants_within_radius"),
+    path('api/featured-restaurants/', views.featured_restaurants_api, name="featured_restaurants_api"),
 ]

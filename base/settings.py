@@ -13,35 +13,37 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+
 load_dotenv()
-from . info import *
+from .info import *
 import environ
 import dj_database_url
+
 env = environ.Env()
 environ.Env.read_env()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-EMAIL_PORT = 587
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+ADMIN_HOST_USER=env("ADMIN_HOST_USER")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 
-
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['127.0.0.1', '.vercel.app']
 
 LOGIN_URL = "/signup/"
 
@@ -57,11 +59,13 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "restaurant",
     "captcha",
-    "django.contrib.gis"
-    
+    "django.contrib.gis",
+    "crispy_forms",
+    "crispy_bootstrap4",
 ]
 
-
+CRISPY_TEMPLATE_PACK = "bootstrap4"
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -91,30 +95,38 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "base.wsgi.application"
+WSGI_APPLICATION = "base.wsgi.app"
 
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-#     "default": {
-#         'ENGINE': 'django.contrib.gis.db.backends.postgis',  # Use the PostGIS engine
-#         'NAME': 'foodpicker',
-#         'USER': 'postgres',
-#         'PASSWORD': env('PASSWORD'),
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#         }
-# }
-
 DATABASES = {
-    "default": dj_database_url.parse("postgresql://foodpickerdb_zwpk_user:PFgncq1zJKYhMYqemvlba0r79kKE2MQ6@dpg-cu4hmhlumphs73899se0-a.singapore-postgres.render.com/foodpickerdb_zwpk")
+    # "default": {
+    #     "ENGINE": "django.contrib.gis.db.backends.postgis",  # Use the PostGIS engine
+    #     "NAME": "postgres",
+    #     "USER": "postgres",
+    #     "PASSWORD": env("PASSWORD"),
+    #     "HOST": "localhost",
+    #     "PORT": "5432",
+    # },
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",  # Use the PostGIS engine
+        "NAME": "postgres",
+        "USER": "postgres.jeheqpjkquncbcsajnqv",
+        "PASSWORD": env("PASSWORD"),
+        "HOST": "aws-0-us-east-2.pooler.supabase.com",
+        "PORT": "6543",
+    }
 }
+
+# DATABASES = {
+#     "default": dj_database_url.parse("postgresql://foodpickerdb_tta9_user:I4IPU0JywQu53aUmCX6ldIbTCnpTn6KQ@dpg-cttrlra3esus739619rg-a.oregon-postgres.render.com/foodpickerdb_tta9")
+# }
 
 
 # Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators 
+# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -132,7 +144,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -148,10 +159,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS =(os.path.join(BASE_DIR, "restaurant\static"),)
+STATIC_URL = "/static/"
+STATICFILES_DIRS = (os.path.join(BASE_DIR, "restaurant\static"),)
 
-MEDIA_URL = '/media/'
+MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 

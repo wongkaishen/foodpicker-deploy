@@ -1,7 +1,369 @@
-{% extends 'homepage/content/main.html' %}
+{% extends 'homepage/content/main.html' %} {% load static %} {% block content %}
+<style>
+  :root {
+    --first-color-rgb: 37, 99, 235;
+  }
+</style>
+<div class="about-container">
+  <div class="about-header">
+    <h1 class="animate-on-scroll">About FoodPicker</h1>
+    <p class="subtitle animate-on-scroll">
+      Your Ultimate Restaurant Discovery Platform
+    </p>
+    <div class="header-decoration"></div>
+  </div>
 
+  <div class="about-content">
+    <div class="about-section animate-on-scroll">
+      <div class="section-icon">
+        <i class="ri-heart-line"></i>
+      </div>
+      <h2>Our Mission</h2>
+      <p>
+        FoodPicker is dedicated to helping food enthusiasts and MMU student to
+        discover the best dining experiences in their area. We believe that
+        finding the perfect restaurant should be an enjoyable and hassle-free
+        experience.
+      </p>
+    </div>
 
-{% block content %}
-this is about
+    <div class="about-section animate-on-scroll">
+      <div class="section-icon">
+        <i class="ri-star-line"></i>
+      </div>
+      <h2>What We Offer</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="ri-search-line"></i>
+          </div>
+          <h3>Smart Search</h3>
+          <p>Find restaurants based on cuisine, location, and price range</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="ri-map-pin-line"></i>
+          </div>
+          <h3>Interactive Maps</h3>
+          <p>Visualize restaurant locations and plan your dining adventures</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="ri-star-line"></i>
+          </div>
+          <h3>Detailed Reviews</h3>
+          <p>Access comprehensive information about each restaurant</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="ri-community-line"></i>
+          </div>
+          <h3>Community Driven</h3>
+          <p>Contribute to our growing database of restaurants</p>
+        </div>
+      </div>
+    </div>
 
+    <div class="about-section animate-on-scroll">
+      <div class="section-icon">
+        <i class="ri-book-line"></i>
+      </div>
+      <h2>Our Story</h2>
+      <p>
+        FoodPicker was born from a simple idea: As students at MMU, we’ve all 
+        faced the same problem—spending too much time deciding where to eat
+        after class. With so many restaurants around, finding the perfect spot
+        that fits our budget and cravings often feels impossible. We’d go back
+        and forth, scrolling through food delivery apps or asking friends, only
+        to end up eating at the same places over and over again. That’s why we
+        created FoodPicker—a simple yet powerful platform designed to take the
+        hassle out of choosing where to eat. <br><br>
+        Our goal is to help MMU students
+        discover affordable and delicious food options effortlessly. Whether
+        you’re looking for a quick bite, a cozy hangout, or the best student
+        deals in town, FoodPicker has you covered. By combining real user
+        recommendations, intuitive search filters, and smart suggestions,
+        FoodPicker ensures that you’ll always find the right place without the
+        endless debate. No more second-guessing—just great food, picked for you.
+        Let’s make food discovery easy. Let’s make every meal count. <br><br>
+        Welcome to FoodPicker.
+      </p>
+    </div>
+
+    <div class="about-section animate-on-scroll">
+      <div class="section-icon">
+        <i class="ri-team-line"></i>
+      </div>
+      <h2>Join Our Community</h2>
+      <p>
+        We're always looking to grow our community of food lovers. Whether
+        you're a restaurant owner or a food enthusiast, you can contribute to
+        making FoodPicker even better.
+      </p>
+      <a href="{% url 'res.form' %}" class="cta-button">
+        <span>Submit a Restaurant</span>
+        <i class="ri-arrow-right-line"></i>
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .about-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+  }
+
+  .about-header h1 {
+    font-size: 2.8rem;
+    color: var(--title-color);
+    margin-bottom: 0.8rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+  }
+
+  .subtitle {
+    font-size: 1.3rem;
+    color: var(--text-color);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease 0.2s;
+  }
+
+  .header-decoration {
+    width: 80px;
+    height: 4px;
+    background: var(--first-color);
+    margin: 1.5rem auto;
+    border-radius: 2px;
+    opacity: 0;
+    transform: scaleX(0);
+    transition: all 0.6s ease 0.4s;
+  }
+
+  .about-section {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+  }
+
+  .section-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(var(--first-color-rgb), 0.08);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-icon i {
+    font-size: 1.8rem;
+    color: var(--first-color);
+  }
+
+  .about-section h2 {
+    color: var(--title-color);
+    margin-bottom: 1.2rem;
+    font-size: 1.8rem;
+    position: relative;
+    display: inline-block;
+  }
+
+  .about-section h2::after {
+    content: "";
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 40px;
+    height: 3px;
+    background: var(--first-color);
+    border-radius: 2px;
+  }
+
+  .about-section p {
+    line-height: 1.7;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.05rem;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .feature-card {
+    background: var(--body-color);
+    padding: 1.8rem;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .feature-icon {
+    width: 70px;
+    height: 70px;
+    background: rgba(var(--first-color-rgb), 0.08);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.2rem;
+    transition: all 0.3s ease;
+  }
+
+  .feature-card:hover .feature-icon {
+    transform: scale(1.1);
+    background: var(--first-color);
+  }
+
+  .feature-card:hover .feature-icon i {
+    color: white;
+  }
+
+  .feature-icon i {
+    font-size: 2rem;
+    color: var(--first-color);
+    transition: all 0.3s ease;
+  }
+
+  .feature-card h3 {
+    color: var(--title-color);
+    margin-bottom: 0.8rem;
+    font-size: 1.3rem;
+  }
+
+  .feature-card p {
+    color: var(--text-color);
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .feature-card:hover .feature-hover {
+    bottom: 0;
+  }
+
+  .cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.9rem 1.8rem;
+    background-color: var(--first-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    margin-top: 0.5rem;
+  }
+
+  .cta-button:hover {
+    background-color: hsl(230, 75%, 46%);
+    transform: translateX(5px);
+  }
+
+  .cta-button i {
+    transition: transform 0.3s ease;
+  }
+
+  .cta-button:hover i {
+    transform: translateX(5px);
+  }
+
+  @media (max-width: 768px) {
+    .about-container {
+      padding: 1.5rem;
+    }
+
+    .about-header h1 {
+      font-size: 2.2rem;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+    }
+
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .about-section h2 {
+      font-size: 1.6rem;
+    }
+
+    .about-section {
+      padding: 1.5rem;
+    }
+  }
+</style>
+
+<script>
+  // Intersection Observer for scroll animations
+  document.addEventListener("DOMContentLoaded", function () {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = "1";
+            entry.target.style.transform = "translateY(0)";
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+      }
+    );
+
+    // Observe all elements with animate-on-scroll class
+    document
+      .querySelectorAll(".animate-on-scroll")
+      .forEach((el) => observer.observe(el));
+
+    // Animate header elements on page load
+    setTimeout(() => {
+      const header = document.querySelector(".about-header h1");
+      const subtitle = document.querySelector(".subtitle");
+      const decoration = document.querySelector(".header-decoration");
+
+      if (header) header.style.opacity = "1";
+      if (header) header.style.transform = "translateY(0)";
+
+      setTimeout(() => {
+        if (subtitle) subtitle.style.opacity = "1";
+        if (subtitle) subtitle.style.transform = "translateY(0)";
+      }, 200);
+
+      setTimeout(() => {
+        if (decoration) decoration.style.opacity = "1";
+        if (decoration) decoration.style.transform = "scaleX(1)";
+      }, 400);
+    }, 300);
+  });
+</script>
 {% endblock %}

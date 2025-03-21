@@ -1,64 +1,675 @@
 {% extends 'homepage/content/main.html' %}
 
 {% load static %}
-
+{% load restaurant_filters %}
 {% block content %}
-
-<div class="restaurant-list">
-    {% for restaurant in restaurants %}
-    <div class="restaurant-card">
-        <a href="{% url 'restaurant_detail' restaurant.id %}" class="restaurant-name">
-            {{ restaurant.name }}
-        </a>
-    </div>
-    {% endfor %}
-</div>
-
 <style>
-    /* Global Styles */
-    body {
-        margin: 0;
-        padding: 0;
-    }
-
-    /* Restaurant List Container */
-    .restaurant-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
-        padding: 1rem;
+    /* Main Container */
+    .restaurants-container {
         max-width: 1200px;
         margin: 0 auto;
+        padding: 2rem 1.5rem;
+    }
+
+    /* Animation delay classes */
+    .delay-0 { animation-delay: 0ms; }
+    .delay-1 { animation-delay: 100ms; }
+    .delay-2 { animation-delay: 200ms; }
+    .delay-3 { animation-delay: 300ms; }
+    .delay-4 { animation-delay: 400ms; }
+    .delay-5 { animation-delay: 500ms; }
+    .delay-6 { animation-delay: 600ms; }
+    .delay-7 { animation-delay: 700ms; }
+    .delay-8 { animation-delay: 800ms; }
+    .delay-9 { animation-delay: 900ms; }
+
+    /* Animation keyframes */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .restaurant-card {
+        animation: fadeInUp 0.5s ease forwards;
+        opacity: 0;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--title-color);
+        text-align: center;
+    }
+
+    .page-subtitle {
+        text-align: center;
+        color: var(--text-color);
+        margin-bottom: 2rem;
+    }
+
+    /* Search and Filter Section */
+    .search-filter-container {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-filter-container:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .search-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 0.8rem 1rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        border-color: var(--first-color);
+        box-shadow: 0 0 0 3px rgba(var(--first-color-rgb), 0.2);
+        outline: none;
+    }
+
+    .filter-button {
+        background-color: var(--first-color);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .filter-button:hover {
+        background-color: hsl(230, 75%, 46%);
+    }
+
+    .filter-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .filter-select {
+        padding: 0.7rem 1rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        background-color: white;
+    }
+
+    .filter-select:focus {
+        border-color: var(--first-color);
+        box-shadow: 0 0 0 3px rgba(var(--first-color-rgb), 0.2);
+        outline: none;
+    }
+
+    .filter-switch {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        cursor: pointer;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 24px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: var(--first-color);
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px var(--first-color);
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+
+    /* Restaurant Grid */
+    .restaurant-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        padding: 1rem 0;
     }
 
     /* Restaurant Card */
     .restaurant-card {
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 1rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        position: relative;
+        animation: fadeInUp 0.5s ease forwards;
+        opacity: 0;
     }
 
-    .restaurant-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    .restaurant-image {
+        height: 200px;
+        background-size: cover;
+        background-position: center;
+        background-color: #f8f9fa;
+        position: relative;
     }
 
-    /* Restaurant Name Link */
+    .price-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        backdrop-filter: blur(5px);
+    }
+
+    .restaurant-info {
+        padding: 1.5rem;
+    }
+
     .restaurant-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--title-color);
+        margin-bottom: 0.5rem;
         text-decoration: none;
-        font-size: 18px;
-        font-weight: bold;
-        color: #333;
         display: block;
-        text-align: center;
+        transition: color 0.3s ease;
     }
 
     .restaurant-name:hover {
-        color: #5e79c2;
+        color: var(--first-color);
+    }
+
+    .restaurant-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        color: var(--text-color);
+        font-size: 0.9rem;
+        flex-wrap: wrap;
+    }
+
+    .cuisine-type {
+        background: #e9ecef;
+        color: #495057;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.85rem;
+    }
+
+    .rating {
+        color: #f1c40f;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .restaurant-description {
+        color: var(--text-color);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.5;
+    }
+
+    .restaurant-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
+    }
+
+    .restaurant-features {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .feature-badge {
+        background: #e3f2fd;
+        color: #1976d2;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .view-details {
+        background-color: var(--first-color);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .view-details:hover {
+        background-color: hsl(230, 75%, 46%);
+        transform: translateY(-2px);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        color: var(--title-color);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+        color: var(--text-color);
+        margin-bottom: 1.5rem;
+    }
+
+    .add-restaurant-btn {
+        background-color: var(--first-color);
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .add-restaurant-btn:hover {
+        background-color: hsl(230, 75%, 46%);
+        transform: translateY(-2px);
+    }
+
+    /* Loading State */
+    .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 300px;
+    }
+
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid rgba(var(--first-color-rgb), 0.2);
+        border-radius: 50%;
+        border-top-color: var(--first-color);
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .search-row {
+            flex-direction: column;
+        }
+
+        .search-filter-container {
+            padding: 1rem;
+        }
+
+        .filter-group {
+            grid-template-columns: 1fr;
+        }
+
+        .restaurant-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 
+<div class="restaurants-container">
+    <h1 class="page-title">Explore Restaurants</h1>
+    <p class="page-subtitle">Discover amazing dining options near you</p>
+
+    <!-- Search and Filter Section -->
+    <div class="search-filter-container">
+        <div class="search-row">
+            <input type="text" class="search-input" id="searchRestaurant" placeholder="Search restaurants by name, cuisine, or location...">
+            <button class="filter-button" type="button" id="filterToggle">
+                <i class="ri-filter-3-line"></i> Filters
+            </button>
+        </div>
+
+        <div class="filter-section" id="filterSection" style="display: none;">
+            <div class="filter-group">
+                <select class="filter-select" id="cuisineFilter">
+                    <option value="">All Cuisines</option>
+                    {% for code, name in cuisine_choices %}
+                        <option value="{{ code }}">{{ name }}</option> <!-- Ensure correct value is sent -->
+                    {% endfor %}
+                </select>
+
+                <select class="filter-select" id="priceFilter">
+                    <option value="">All Prices</option>
+                    {% for code, name in price_choices %}
+                        <option value="{{ code }}">{{ name }}</option>
+                    {% endfor %}
+                </select>
+
+                <select class="filter-select" id="sortBy">
+                    <option value="rating">Sort by Rating</option>
+                    <option value="name">Sort by Name</option>
+                    <option value="price">Sort by Price</option> <!-- Ensure correct value is sent -->
+                </select>
+
+                <label class="filter-switch">
+                    <span>Delivery Available</span>
+                    <label class="switch">
+                        <input type="checkbox" id="deliveryFilter">
+                        <span class="slider"></span>
+                    </label>
+                </label>
+
+                <label class="filter-switch">
+                    <span>Takeout Available</span>
+                    <label class="switch">
+                        <input type="checkbox" id="takeoutFilter">
+                        <span class="slider"></span>
+                    </label>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State (initially hidden) -->
+    <div class="loading-container" id="loadingContainer" style="display: none;">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Restaurant Grid -->
+    <div id="restaurantResults">
+        {% if restaurants %}
+        <div class="restaurant-grid">
+            {% for restaurant in restaurants %}
+            <div class="restaurant-card {{ forloop.counter0|animation_delay }}">
+                <div class="restaurant-image" style="background-image: url('{% static 'img/restaurant-placeholder.jpg' %}')">
+                    <span class="price-badge">{{ restaurant.price_range }}</span>
+                </div>
+                <div class="restaurant-info">
+                    <a href="{% url 'restaurant_detail' restaurant.id %}" class="restaurant-name">
+                        {{ restaurant.name }}
+                    </a>
+                    <div class="restaurant-meta">
+                        <span class="cuisine-type">{{ restaurant.get_cuisine_type_display }}</span>
+                        <span class="rating">
+                            <i class="ri-star-fill"></i>
+                            {{ restaurant.average_rating|floatformat:1 }}
+                        </span>
+                    </div>
+                    <p class="restaurant-description">{{ restaurant.description }}</p>
+                    <div class="restaurant-footer">
+                        <div class="restaurant-features">
+                            {% if restaurant.delivery_available %}
+                            <span class="feature-badge">
+                                <i class="ri-bike-line"></i> Delivery
+                            </span>
+                            {% endif %}
+                            {% if restaurant.takeout_available %}
+                            <span class="feature-badge">
+                                <i class="ri-shopping-bag-line"></i> Takeout
+                            </span>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'restaurant_detail' restaurant.id %}" class="view-details">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="ri-restaurant-line"></i>
+            <h3>No Restaurants Found</h3>
+            <p>We couldn't find any restaurants matching your criteria. Try adjusting your filters or add a new restaurant.</p>
+            <a href="{% url 'res.form' %}" class="add-restaurant-btn">
+                <i class="ri-add-line"></i> Add Restaurant
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filter toggle functionality
+        const filterToggle = document.getElementById('filterToggle');
+        const filterSection = document.getElementById('filterSection');
+        
+        filterToggle.addEventListener('click', function() {
+            const isVisible = filterSection.style.display !== 'none';
+            filterSection.style.display = isVisible ? 'none' : 'block';
+            
+            // Add animation
+            if (!isVisible) {
+                filterSection.style.opacity = '0';
+                filterSection.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    filterSection.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    filterSection.style.opacity = '1';
+                    filterSection.style.transform = 'translateY(0)';
+                }, 10);
+            }
+        });
+
+        // Filter functionality
+        const searchInput = document.getElementById('searchRestaurant');
+        const cuisineFilter = document.getElementById('cuisineFilter');
+        const priceFilter = document.getElementById('priceFilter');
+        const sortBy = document.getElementById('sortBy');
+        const deliveryFilter = document.getElementById('deliveryFilter');
+        const takeoutFilter = document.getElementById('takeoutFilter');
+        const restaurantResults = document.getElementById('restaurantResults');
+        const loadingContainer = document.getElementById('loadingContainer');
+
+        // Debounce function
+        function debounce(func, wait) {
+            let timeout;
+            return function() {
+                const context = this;
+                const args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), wait);
+            };
+        }
+
+        // Function to fetch filtered restaurants
+        function fetchRestaurants() {
+            // Show loading state
+            loadingContainer.style.display = 'flex';
+            restaurantResults.style.opacity = '0.5';
+
+            // Build query parameters
+            const params = new URLSearchParams({
+                search: searchInput.value,
+                cuisine: cuisineFilter.value,
+                price: priceFilter.value,
+                sort_by: sortBy.value,
+                delivery: deliveryFilter.checked,
+                takeout: takeoutFilter.checked
+            });
+
+            // Fetch data from the server
+            fetch(`/restaurant/?${params.toString()}`, {
+                headers: { 'x-requested-with': 'XMLHttpRequest' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.restaurants.length === 0) {
+                    // Show empty state
+                    restaurantResults.innerHTML = `
+                        <div class="empty-state">
+                            <i class="ri-restaurant-line"></i>
+                            <h3>No Restaurants Found</h3>
+                            <p>We couldn't find any restaurants matching your criteria. Try adjusting your filters.</p>
+                            <button class="add-restaurant-btn" id="resetFilters">
+                                <i class="ri-refresh-line"></i> Reset Filters
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Add reset filters functionality
+                    document.getElementById('resetFilters').addEventListener('click', resetFilters);
+                } else {
+                    // Update the restaurant results with animation
+                    restaurantResults.innerHTML = `
+                        <div class="restaurant-grid">
+                            ${data.restaurants.map((r, index) => `
+                                <div class="restaurant-card delay-${index % 10}">
+                                    <div class="restaurant-image" style="background-image: url('/static/img/restaurant-placeholder.jpg')">
+                                        <span class="price-badge">${r.price_range}</span>
+                                    </div>
+                                    <div class="restaurant-info">
+                                        <a href="/restaurant/${r.id}/" class="restaurant-name">${r.name}</a>
+                                        <div class="restaurant-meta">
+                                            <span class="cuisine-type">${r.cuisine_type}</span>
+                                            <span class="rating">
+                                                <i class="ri-star-fill"></i> ${r.average_rating.toFixed(1)}
+                                            </span>
+                                        </div>
+                                        <p class="restaurant-description">${r.description}</p>
+                                        <div class="restaurant-footer">
+                                            <div class="restaurant-features">
+                                                ${r.delivery_available ? '<span class="feature-badge"><i class="ri-bike-line"></i> Delivery</span>' : ''}
+                                                ${r.takeout_available ? '<span class="feature-badge"><i class="ri-shopping-bag-line"></i> Takeout</span>' : ''}
+                                            </div>
+                                            <a href="/restaurant/${r.id}/" class="view-details">View Details</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
+                // Hide loading state
+                loadingContainer.style.display = 'none';
+                restaurantResults.style.opacity = '1';
+            })
+            .catch(error => {
+                console.error('Error fetching restaurants:', error);
+                loadingContainer.style.display = 'none';
+                restaurantResults.style.opacity = '1';
+            });
+        }
+
+        // Function to reset all filters
+        function resetFilters() {
+            searchInput.value = '';
+            cuisineFilter.value = '';
+            priceFilter.value = '';
+            sortBy.value = 'rating';
+            deliveryFilter.checked = false;
+            takeoutFilter.checked = false;
+            fetchRestaurants();
+        }
+
+        // Add event listeners with debounce
+        const debouncedFetch = debounce(fetchRestaurants, 300);
+        searchInput.addEventListener('input', debouncedFetch);
+        cuisineFilter.addEventListener('change', fetchRestaurants);
+        priceFilter.addEventListener('change', fetchRestaurants);
+        sortBy.addEventListener('change', fetchRestaurants);
+        deliveryFilter.addEventListener('change', fetchRestaurants);
+        takeoutFilter.addEventListener('change', fetchRestaurants);
+    });
+</script>
 {% endblock %}

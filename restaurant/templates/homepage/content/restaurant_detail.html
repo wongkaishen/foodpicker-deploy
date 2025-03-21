@@ -2,81 +2,899 @@
 {% load static %}
 
 {% block content %}
-<style>
-    .restaurant-details {
-        max-width: 800px;
-        margin: 2rem auto;
-        padding: 1rem;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        z-index: 0;
-    }
 
-    .restaurant-name {
-        font-size: 2rem;
-        color: #333;
-        margin-bottom: 1rem;
-        text-align: center;
-    }
-
-    .restaurant-info p {
-        margin: 0.5rem 0;
-        color: #555;
-        font-size: 1rem;
-    }
-
-    .restaurant-info strong {
-        color: #222;
-    }
-
-    .restaurant-description {
-        margin-top: 1rem;
-        color: #666;
-        line-height: 1.5;
-    }
-
-    #map {
-        height: 500px;
-        width: 100%;
-        margin-top: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        z-index: 0;
-    }
-</style>
-
-<div class="restaurant-details">
-    <h1 class="restaurant-name">{{ restaurant.name }}</h1>
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-        <strong>Messages:</strong> {{ message }}
-    </div>
-    {% endfor %}
-    <div class="restaurant-info">
-        <p><strong>Working Hour:</strong> {{ restaurant.opentime }}</p>
-        <p><strong>Closing Hour:</strong> {{ restaurant.closetime }}</p>
-        <p><strong>Price:</strong> RM{{ restaurant.price }}</p>
-        <p class="restaurant-description">{{ restaurant.description }}</p>
-    </div>
-
-    <div id="map"></div>
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    <strong>Messages:</strong> {{ message }}
 </div>
+{% endfor %}
 
+<div class="restaurant-detail-container">
+    <div class="restaurant-header">
+        <div class="restaurant-header-content">
+            <h1 class="restaurant-name">{{ restaurant.name }}</h1>
+            <div class="restaurant-meta">
+                <span class="cuisine-type">{{ restaurant.get_cuisine_type_display }}</span>
+                <span class="price-range">{{ restaurant.price_range }}</span>
+                <span class="rating">
+                    <i class="ri-star-fill"></i> {{ restaurant.average_rating|floatformat:1 }}
+                </span>
+            </div>
+            <div class="restaurant-tags">
+                {% if restaurant.delivery_available %}
+                <span class="tag delivery-tag">
+                    <i class="ri-bike-line"></i> Delivery
+                </span>
+                {% endif %}
+                {% if restaurant.takeout_available %}
+                <span class="tag takeout-tag">
+                    <i class="ri-shopping-bag-line"></i> Takeout
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="restaurant-content">
+        <div class="restaurant-info-section">
+            <div class="info-card">
+                <h2>About</h2>
+                <p class="restaurant-description">{{ restaurant.description }}</p>
+            </div>
+
+            <div class="info-card contact-card">
+                <h2>Contact Information</h2>
+                <div class="contact-info">
+                    {% if restaurant.phone %}
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="ri-phone-line"></i>
+                        </div>
+                        <div class="contact-details">
+                            <span class="contact-label">Phone</span>
+                            <a href="tel:{{ restaurant.phone }}" class="contact-link">{{ restaurant.phone }}</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if restaurant.email %}
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="ri-mail-line"></i>
+                        </div>
+                        <div class="contact-details">
+                            <span class="contact-label">Email</span>
+                            <a href="mailto:{{ restaurant.email }}" class="contact-link">{{ restaurant.email }}</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if restaurant.website %}
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="ri-global-line"></i>
+                        </div>
+                        <div class="contact-details">
+                            <span class="contact-label">Website</span>
+                            <a href="{{ restaurant.website }}" target="_blank" rel="noopener noreferrer" class="contact-link">{{ restaurant.website }}</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="ri-map-pin-line"></i>
+                        </div>
+                        <div class="contact-details">
+                            <span class="contact-label">Address</span>
+                            <span class="contact-address">{{ restaurant.get_full_address }}</span>
+                        </div>
+                    </div>
+                    <div class="contact-actions">
+                        <button class="action-button copy-address" data-address="{{ restaurant.get_full_address }}">
+                            <i class="ri-file-copy-line"></i> Copy Address
+                        </button>
+                        {% if restaurant.phone %}
+                        <button class="action-button share-contact" data-name="{{ restaurant.name }}" data-phone="{{ restaurant.phone }}">
+                            <i class="ri-share-line"></i> Share Contact
+                        </button>
+                        {% endif %}
+                        <button class="action-button add-calendar" data-name="{{ restaurant.name }}" data-address="{{ restaurant.get_full_address }}">
+                            <i class="ri-calendar-line"></i> Add to Calendar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h2>Hours</h2>
+                <div class="hours-info">
+                    {% if restaurant.is_open_24_hours %}
+                    <p>Open 24 Hours</p>
+                    {% else %}
+                    <p>{{ restaurant.opentime|time:"g:i A" }} - {{ restaurant.closetime|time:"g:i A" }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+        <div class="map-section">
+            <div class="map-card">
+                <h2><i class="ri-map-pin-line"></i> Location</h2>
+                <div id="map"></div>
+                <div class="map-actions">
+                    <a href="https://www.google.com/maps/dir/?api=1&destination={{ restaurant.latitude }},{{ restaurant.longitude }}" 
+                       class="directions-button" target="_blank" rel="noopener noreferrer">
+                        <i class="ri-route-line"></i> Get Directions
+                    </a>
+                    <button id="shareLocation" class="share-location-button">
+                        <i class="ri-share-line"></i> Share Location
+                    </button>
+                </div>
+            </div>
+            <div class="info-card">
+                <h2>Location</h2>
+                <div class="address-info">
+                    <p>{{ restaurant.get_full_address }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+<style>
+    .restaurant-detail-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .restaurant-header {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static "img/restaurant-placeholder.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 3rem 2rem;
+    }
+
+    .restaurant-header-content {
+        max-width: 800px;
+    }
+
+    .restaurant-name {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .restaurant-meta {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .cuisine-type, .price-range, .rating {
+        background-color: rgba(255, 255, 255, 0.2);
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .rating i {
+        color: #FFD700;
+    }
+
+    .restaurant-tags {
+        display: flex;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+    }
+
+    .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        background-color: rgba(255, 255, 255, 0.2);
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+    }
+
+    .restaurant-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        padding: 2rem;
+    }
+
+    .info-card {
+        background-color: #f9f9f9;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-card h2 {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+        color: var(--title-color);
+        border-bottom: 1px solid #eee;
+        padding-bottom: 0.5rem;
+    }
+
+    .restaurant-description {
+        line-height: 1.6;
+    }
+
+    .contact-card {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .contact-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(to bottom, var(--first-color), #4CAF50);
+    }
+    
+    .contact-info {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+    
+    .contact-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        transition: all 0.3s ease;
+        padding: 0.5rem;
+        border-radius: 8px;
+    }
+    
+    .contact-item:hover {
+        background-color: rgba(var(--first-color-rgb), 0.05);
+        transform: translateX(5px);
+    }
+    
+    .contact-icon {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(var(--first-color-rgb), 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .contact-icon i {
+        font-size: 20px;
+        color: var(--first-color);
+    }
+    
+    .contact-details {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+    
+    .contact-label {
+        font-size: 0.8rem;
+        color: #666;
+        margin-bottom: 0.2rem;
+    }
+    
+    .contact-link {
+        color: var(--first-color);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        position: relative;
+        display: inline-block;
+        font-weight: 500;
+    }
+    
+    .contact-link::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: var(--first-color);
+        transition: width 0.3s ease;
+    }
+    
+    .contact-link:hover {
+        color: hsl(230, 75%, 46%);
+    }
+    
+    .contact-link:hover::after {
+        width: 100%;
+    }
+    
+    .contact-address {
+        line-height: 1.4;
+    }
+    
+    .contact-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-top: 1rem;
+    }
+    
+    .action-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: #f0f0f0;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .action-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .action-button:hover {
+        background-color: #e0e0e0;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .action-button:hover::before {
+        left: 100%;
+    }
+    
+    .copy-address {
+        color: #2196F3;
+    }
+    
+    .share-contact {
+        color: #4CAF50;
+    }
+    
+    .add-calendar {
+        color: #FF9800;
+    }
+
+    #map {
+        height: 400px;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border: 3px solid #fff;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    #map:hover {
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .map-controls {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .map-control-button {
+        background: white;
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s ease;
+    }
+
+    .map-control-button:hover {
+        background: #f5f5f5;
+        transform: translateY(-2px);
+    }
+
+    .map-control-button i {
+        font-size: 18px;
+        color: var(--first-color);
+    }
+
+
+    .map-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .directions-button, .share-location-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: var(--first-color);
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .directions-button:hover, .share-location-button:hover {
+        background-color: hsl(230, 75%, 46%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .share-location-button {
+        background-color: #4CAF50;
+    }
+
+    .share-location-button:hover {
+        background-color: #388E3C;
+    }
+
+    .map-card {
+        background-color: #f9f9f9;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .map-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(to right, var(--first-color), #4CAF50);
+    }
+
+    .map-card h2 {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+        color: var(--title-color);
+        border-bottom: 1px solid #eee;
+        padding-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .map-card h2 i {
+        color: var(--first-color);
+    }
+
+    /* Responsive adjustments */
+    @media screen and (max-width: 768px) {
+        .restaurant-content {
+            grid-template-columns: 1fr;
+        }
+
+        .restaurant-name {
+            font-size: 2rem;
+        }
+
+        .restaurant-header {
+            padding: 2rem 1.5rem;
+        }
+
+        .restaurant-content {
+            padding: 1.5rem;
+        }
+    }
+</style>
 
 <script>
-    var map = L.map('map').setView([{{ restaurant.latitude }}, {{ restaurant.longitude }}], 15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-    L.marker([{{ restaurant.latitude }}, {{ restaurant.longitude }}]).addTo(map)
-        .bindPopup('<b>{{ restaurant.name }}</b><br>{{ restaurant.description }}');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize map
+        const map = L.map('map', {
+            zoomControl: false // We'll add custom zoom controls
+        }).setView([{{ restaurant.latitude }}, {{ restaurant.longitude }}], 15);
+        
+        // Add zoom controls to custom position
+        L.control.zoom({
+            position: 'bottomright'
+        }).addTo(map);
+        
+        // Use a more modern and detailed map style
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
+        }).addTo(map);
+        
+        // Add restaurant marker with custom icon
+        const restaurantIcon = L.divIcon({
+            html: '<div class="pulse-marker"><i class="ri-restaurant-2-fill"></i></div>',
+            className: 'restaurant-marker',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
+        });
+        
+        const marker = L.marker([{{ restaurant.latitude }}, {{ restaurant.longitude }}], {
+            icon: restaurantIcon
+        }).addTo(map);
+        
+        // Create a more detailed popup
+        const popupContent = `
+            <div class="map-popup">
+                <h3>{{ restaurant.name }}</h3>
+                <p>{{ restaurant.get_full_address }}</p>
+                <div class="popup-meta">
+                    <span>{{ restaurant.get_cuisine_type_display }}</span>
+                    <span>{{ restaurant.price_range }}</span>
+                </div>
+                <div class="popup-actions">
+                    <a href="https://www.google.com/maps/dir/?api=1&destination={{ restaurant.latitude }},{{ restaurant.longitude }}" target="_blank" rel="noopener noreferrer">
+                        <i class="ri-route-line"></i> Directions
+                    </a>
+                </div>
+            </div>
+        `;
+        
+        marker.bindPopup(popupContent).openPopup();
+        
+        // Add a circle around the restaurant to indicate the area
+        const circle = L.circle([{{ restaurant.latitude }}, {{ restaurant.longitude }}], {
+            color: 'rgba(var(--first-color-rgb), 0.2)',
+            fillColor: 'rgba(var(--first-color-rgb), 0.1)',
+            fillOpacity: 0.5,
+            radius: 300
+        }).addTo(map);
+        
+        // Add custom map controls
+        const mapContainer = document.getElementById('map');
+        const controlsDiv = document.createElement('div');
+        controlsDiv.className = 'map-controls';
+        controlsDiv.innerHTML = `
+            <button class="map-control-button" id="centerMapBtn" title="Center map">
+                <i class="ri-focus-3-line"></i>
+            </button>
+        `;
+        mapContainer.appendChild(controlsDiv);
+        
+        // Center map button
+        document.getElementById('centerMapBtn').addEventListener('click', function() {
+            map.setView([{{ restaurant.latitude }}, {{ restaurant.longitude }}], 15, {
+                animate: true,
+                duration: 1
+            });
+        });
+        
+        
+        // Add animation to info cards
+        const infoCards = document.querySelectorAll('.info-card, .map-card');
+        infoCards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            card.style.transitionDelay = index * 0.1 + 's';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
+        });
+        
+        // Share location functionality
+        const shareButton = document.getElementById('shareLocation');
+        if (shareButton) {
+            shareButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const restaurantName = "{{ restaurant.name }}";
+                const restaurantAddress = "{{ restaurant.get_full_address }}";
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurantName + ' ' + restaurantAddress)}`;
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: restaurantName,
+                        text: `Check out ${restaurantName} at ${restaurantAddress}`,
+                        url: mapsUrl
+                    })
+                    .catch(error => console.log('Error sharing:', error));
+                } else {
+                    // Fallback for browsers that don't support Web Share API
+                    navigator.clipboard.writeText(mapsUrl)
+                        .then(() => {
+                            const tooltip = document.createElement('div');
+                            tooltip.className = 'copy-tooltip';
+                            tooltip.textContent = 'Link copied to clipboard!';
+                            document.body.appendChild(tooltip);
+                            
+                            setTimeout(() => {
+                                tooltip.remove();
+                            }, 2000);
+                        })
+                        .catch(err => console.log('Failed to copy: ', err));
+                }
+            });
+        }
+        
+        // Copy address functionality
+        const copyAddressButton = document.querySelector('.copy-address');
+        if (copyAddressButton) {
+            copyAddressButton.addEventListener('click', function() {
+                const address = this.dataset.address;
+                navigator.clipboard.writeText(address)
+                    .then(() => {
+                        // Show success message
+                        const originalText = this.innerHTML;
+                        this.innerHTML = '<i class="ri-check-line"></i> Copied!';
+                        this.style.backgroundColor = '#E3F2FD';
+                        
+                        setTimeout(() => {
+                            this.innerHTML = originalText;
+                            this.style.backgroundColor = '#f0f0f0';
+                        }, 2000);
+                    })
+                    .catch(err => console.log('Failed to copy: ', err));
+            });
+        }
+        
+        // Share contact functionality
+        const shareContactButton = document.querySelector('.share-contact');
+        if (shareContactButton) {
+            shareContactButton.addEventListener('click', function() {
+                const name = this.dataset.name;
+                const phone = this.dataset.phone;
+                
+                // Create a vCard
+                const vCard = `BEGIN:VCARD
+VERSION:3.0
+FN:${name} Restaurant
+TEL:${phone}
+END:VCARD`;
+                
+                // Create a blob and download it
+                const blob = new Blob([vCard], { type: 'text/vcard' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${name.replace(/\s+/g, '_')}_contact.vcf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // Show success message
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="ri-check-line"></i> Downloaded!';
+                this.style.backgroundColor = '#E8F5E9';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.style.backgroundColor = '#f0f0f0';
+                }, 2000);
+            });
+        }
+        
+        // Add to calendar functionality
+        const addCalendarButton = document.querySelector('.add-calendar');
+        if (addCalendarButton) {
+            addCalendarButton.addEventListener('click', function() {
+                const restaurantName = this.dataset.name;
+                const restaurantAddress = this.dataset.address;
+                
+                // Create a date for tomorrow at 7 PM
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                tomorrow.setHours(19, 0, 0, 0);
+                
+                // End time (2 hours later)
+                const endTime = new Date(tomorrow);
+                endTime.setHours(21, 0, 0, 0);
+                
+                // Format dates for Google Calendar
+                const startDate = tomorrow.toISOString().replace(/-|:|\.\d+/g, '');
+                const endDate = endTime.toISOString().replace(/-|:|\.\d+/g, '');
+                
+                // Create Google Calendar URL
+                const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Dinner at ${encodeURIComponent(restaurantName)}&dates=${startDate}/${endDate}&details=Reservation at ${encodeURIComponent(restaurantName)}&location=${encodeURIComponent(restaurantAddress)}`;
+                
+                // Open in new tab
+                window.open(calendarUrl, '_blank');
+                
+                // Show success message
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="ri-check-line"></i> Added!';
+                this.style.backgroundColor = '#FFF3E0';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.style.backgroundColor = '#f0f0f0';
+                }, 2000);
+            });
+        }
+    });
 </script>
 
-
+<style>
+    /* Map popup styles */
+    .map-popup {
+        padding: 8px;
+        min-width: 200px;
+    }
+    
+    .map-popup h3 {
+        margin: 0 0 5px 0;
+        font-size: 16px;
+        color: var(--first-color);
+    }
+    
+    .map-popup p {
+        margin: 0 0 5px 0;
+        font-size: 14px;
+    }
+    
+    .popup-meta {
+        display: flex;
+        gap: 10px;
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+    
+    .popup-meta span {
+        background: #f0f0f0;
+        padding: 2px 8px;
+        border-radius: 10px;
+    }
+    
+    .popup-actions {
+        margin-top: 8px;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .popup-actions a {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: var(--first-color);
+        color: white;
+        text-decoration: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        transition: all 0.2s ease;
+    }
+    
+    .popup-actions a:hover {
+        background: hsl(230, 75%, 46%);
+        transform: translateY(-2px);
+    }
+    
+    .restaurant-marker {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    .pulse-marker {
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        position: relative;
+    }
+    
+    .pulse-marker i {
+        font-size: 20px;
+        color: var(--first-color);
+        z-index: 2;
+    }
+    
+    .pulse-marker::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: rgba(var(--first-color-rgb), 0.4);
+        border-radius: 50%;
+        z-index: 1;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(2);
+            opacity: 0;
+        }
+    }
+    
+    .place-marker {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        width: 30px !important;
+        height: 30px !important;
+    }
+    
+    .place-marker i {
+        font-size: 30px;
+        filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+    }
+    
+    .spinning {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .copy-tooltip {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        z-index: 1000;
+        animation: fadeInOut 2s ease;
+    }
+    
+    @keyframes fadeInOut {
+        0% { opacity: 0; transform: translate(-50%, 20px); }
+        20% { opacity: 1; transform: translate(-50%, 0); }
+        80% { opacity: 1; transform: translate(-50%, 0); }
+        100% { opacity: 0; transform: translate(-50%, -20px); }
+    }
+</style>
 
 {% endblock %}

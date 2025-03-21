@@ -1,7 +1,525 @@
 {% extends 'homepage/content/main.html' %}
-
+{% load static %}
 
 {% block content %}
+<style>
+    :root {
+        --first-color-rgb: 37, 99, 235;
+    }
+</style>
+<div class="contact-container">
+    <div class="contact-header">
+        <h1 class="animate-on-scroll">Contact Us</h1>
+        <p class="subtitle animate-on-scroll">Get in touch with the FoodPicker team</p>
+        <div class="header-decoration"></div>
+    </div>
 
-this is contact
+    <div class="contact-content">
+        <div class="contact-info-section animate-on-scroll">
+            <div class="info-card">
+                <div class="card-icon">
+                    <i class="ri-customer-service-2-line"></i>
+                </div>
+                <h2>Get in Touch</h2>
+                <p>Have questions or suggestions? We'd love to hear from you!</p>
+                
+                <div class="contact-methods">
+                    <div class="contact-method">
+                        <div class="method-icon">
+                            <i class="ri-mail-line"></i>
+                        </div>
+                        <div class="method-details">
+                            <h3>Email</h3>
+                            <p>foodpicker2024@gmail.com</p>
+                            <a href="mailto:foodpicker2024@gmail.com" class="method-link">Send Email</a>
+                        </div>
+                    </div>
+                    <div class="contact-method">
+                        <div class="method-icon">
+                            <i class="ri-map-pin-line"></i>
+                        </div>
+                        <div class="method-details">
+                            <h3>Location</h3>
+                            <p> Persiaran Multimedia, 63100 Cyberjaya, Selangor</p>
+                            <a href="https://maps.app.goo.gl/5nv1xHWoxDpkjGyE7" class="method-link">View on Map</a>
+                        </div>
+                    </div>
+                    <div class="contact-method">
+                        <div class="method-icon">
+                            <i class="ri-time-line"></i>
+                        </div>
+                        <div class="method-details">
+                            <h3>Response Time</h3>
+                            <p>Within 24-48 hours</p>
+                            <span class="response-badge">Fast Response</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-form-section animate-on-scroll">
+            <div class="form-card">
+                <div class="card-icon">
+                    <i class="ri-mail-send-line"></i>
+                </div>
+                <h2>Send us a Message</h2>
+                <div id="form-messages" class="form-messages"></div>
+                <form class="contact-form" method="POST" id="contactForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="name">Your Name</label>
+                        <div class="input-group">
+                            <i class="ri-user-line"></i>
+                            <input type="text" id="name" name="name" placeholder="Please enter your name" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Your Email</label>
+                        <div class="input-group">
+                            <i class="ri-mail-line"></i>
+                            <input type="email" id="email" name="email" placeholder="Please enter your email"  required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <div class="input-group">
+                            <i class="ri-bookmark-line"></i>
+                            <input type="text" id="subject" name="subject" placeholder="Please enter the subject (e.g image not showing, link not working etc)"  required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <div class="input-group">
+                            <i class="ri-message-2-line"></i>
+                            <textarea id="message" name="message" rows="5" placeholder="We need your feedback Thanks!! "  required></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-button">
+                        <span>Send Message</span>
+                        <i class="ri-send-plane-line"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .contact-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .contact-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        position: relative;
+    }
+
+    .contact-header h1 {
+        font-size: 2.8rem;
+        color: var(--title-color);
+        margin-bottom: 0.8rem;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.6s ease;
+    }
+
+    .subtitle {
+        font-size: 1.3rem;
+        color: var(--text-color);
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.6s ease 0.2s;
+    }
+
+    .header-decoration {
+        width: 80px;
+        height: 4px;
+        background: var(--first-color);
+        margin: 1.5rem auto;
+        border-radius: 2px;
+        opacity: 0;
+        transform: scaleX(0);
+        transition: all 0.6s ease 0.4s;
+    }
+
+    .contact-content {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 2rem;
+    }
+
+    .info-card, .form-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .card-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(var(--first-color-rgb), 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .card-icon i {
+        font-size: 1.8rem;
+        color: var(--first-color);
+    }
+
+    .info-card h2, .form-card h2 {
+        color: var(--title-color);
+        margin-bottom: 1.2rem;
+        font-size: 1.8rem;
+        position: relative;
+        display: inline-block;
+    }
+
+    .info-card h2::after, .form-card h2::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 40px;
+        height: 3px;
+        background: var(--first-color);
+        border-radius: 2px;
+    }
+
+    .info-card p {
+        color: var(--text-color);
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .contact-methods {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+        margin-top: 1.5rem;
+    }
+
+    .contact-method {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.2rem;
+        background: var(--body-color);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .contact-method:hover {
+        transform: translateX(8px);
+        background: rgba(var(--first-color-rgb), 0.08);
+    }
+
+    .method-icon {
+        width: 45px;
+        height: 45px;
+        background: rgba(var(--first-color-rgb), 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .method-icon i {
+        font-size: 1.4rem;
+        color: var(--first-color);
+    }
+
+    .method-details {
+        flex-grow: 1;
+    }
+
+    .method-details h3 {
+        color: var(--title-color);
+        margin-bottom: 0.4rem;
+        font-size: 1.2rem;
+    }
+
+    .method-details p {
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .method-link {
+        color: var(--first-color);
+        text-decoration: none;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        transition: all 0.3s ease;
+    }
+
+    .method-link:hover {
+        text-decoration: underline;
+    }
+
+    .response-badge {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        background: rgba(var(--first-color-rgb), 0.1);
+        color: var(--first-color);
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    /* Form Styles */
+    .contact-form {
+        margin-top: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--title-color);
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+    .input-group {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-group i {
+        position: absolute;
+        left: 1rem;
+        color: var(--text-color);
+        font-size: 1.1rem;
+    }
+
+    .input-group input, 
+    .input-group textarea {
+        width: 100%;
+        padding: 0.8rem 1rem 0.8rem 2.8rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: var(--body-color);
+        color: var(--text-color);
+    }
+
+    .input-group input:focus, 
+    .input-group textarea:focus {
+        border-color: var(--first-color);
+        box-shadow: 0 0 0 3px rgba(var(--first-color-rgb), 0.1);
+        outline: none;
+    }
+
+    .input-group textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .submit-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.9rem 1.8rem;
+        background-color: var(--first-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .submit-button:hover {
+        background-color: hsl(230, 75%, 46%);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 10px rgba(var(--first-color-rgb), 0.2);
+    }
+
+    .submit-button i {
+        font-size: 1.1rem;
+        transition: transform 0.3s ease;
+    }
+
+    .submit-button:hover i {
+        transform: translateX(4px);
+    }
+
+    /* Animation for form section */
+    .contact-info-section,
+    .contact-form-section {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.6s ease;
+    }
+
+    .contact-info-section {
+        transition-delay: 0.2s;
+    }
+
+    .contact-form-section {
+        transition-delay: 0.4s;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .contact-content {
+            grid-template-columns: 1fr;
+        }
+        
+        .contact-info-section {
+            transition-delay: 0.2s;
+        }
+        
+        .contact-form-section {
+            transition-delay: 0.3s;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .contact-container {
+            padding: 1.5rem;
+        }
+        
+        .contact-header h1 {
+            font-size: 2.2rem;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+        }
+        
+        .contact-content {
+            flex-direction: column;
+        }
+        
+        .contact-info-section, .contact-form-section {
+            width: 100%;
+        }
+    }
+
+    /* Form messages styling */
+    .form-messages {
+        padding: 12px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        display: none;
+    }
+
+    .form-messages.success {
+        background-color: rgba(0, 200, 83, 0.1);
+        color: #00c853;
+        border: 1px solid rgba(0, 200, 83, 0.3);
+        display: block;
+    }
+
+    .form-messages.error {
+        background-color: rgba(244, 67, 54, 0.1);
+        color: #f44336;
+        border: 1px solid rgba(244, 67, 54, 0.3);
+        display: block;
+    }
+</style>
+
+<script>
+    // Intersection Observer for scroll animations
+    document.addEventListener('DOMContentLoaded', function() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        // Observe all elements with animate-on-scroll class
+        document.querySelectorAll('.animate-on-scroll').forEach((el) => observer.observe(el));
+
+        // Animate header elements on page load
+        setTimeout(() => {
+            const header = document.querySelector('.contact-header h1');
+            const subtitle = document.querySelector('.subtitle');
+            const decoration = document.querySelector('.header-decoration');
+
+            if (header) header.style.opacity = '1';
+            if (header) header.style.transform = 'translateY(0)';
+            
+            setTimeout(() => {
+                if (subtitle) subtitle.style.opacity = '1';
+                if (subtitle) subtitle.style.transform = 'translateY(0)';
+            }, 200);
+
+            setTimeout(() => {
+                if (decoration) decoration.style.opacity = '1';
+                if (decoration) decoration.style.transform = 'scaleX(1)';
+            }, 400);
+        }, 300);
+
+        // Handle contact form submission
+        const contactForm = document.getElementById('contactForm');
+        const formMessages = document.getElementById('form-messages');
+
+        if (contactForm) {
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form data
+                const formData = new FormData(contactForm);
+                
+                // Send AJAX request
+                fetch('{% url "res.contact" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Display success message
+                    formMessages.textContent = data.message;
+                    formMessages.className = 'form-messages success';
+                    
+                    // Reset form
+                    contactForm.reset();
+                    
+                    // Hide message after 5 seconds
+                    setTimeout(() => {
+                        formMessages.style.display = 'none';
+                    }, 5000);
+                })
+                .catch(error => {
+                    // Display error message
+                    formMessages.textContent = 'There was a problem sending your message. Please try again.';
+                    formMessages.className = 'form-messages error';
+                    
+                    console.error('Error:', error);
+                });
+            });
+        }
+    });
+</script>
 {% endblock %}

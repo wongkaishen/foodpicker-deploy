@@ -1,6 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,200;0,300;1,200&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap');
 
-/*font-family: 'Nunito Sans', sans-serif;*/
+/*font-family: "Merriweather", serif;*/
 * {
     margin: 0px;
     padding: 0px;
@@ -36,7 +36,7 @@
 #formTitle {
     text-align: center;
     padding-top: 10px;
-    font-family: "Syne", sans-serif;
+    font-family: "Merriweather", serif;
     font-weight: bolder;
     letter-spacing: 1px;
     font-size: 25px;
@@ -53,7 +53,7 @@
 #formSwitchBtn button {
     font-size: 17px;
     letter-spacing: 1px;
-    font-family: "Syne", sans-serif;
+    font-family: "Merriweather", serif;
     font-weight: bolder;
     width: 160px;
     height: 40px;
@@ -79,7 +79,7 @@
     padding: 5px;
     border-radius: 5px;
     font-size: 17px;
-    font-family: "Syne", sans-serif;
+    font-family: "Merriweather", serif;
     margin-top: 5px;
 }
 
@@ -109,14 +109,14 @@
 }
 
 .forgot-pass-remember-me label {
-    font-family: "Syne", sans-serif;
+    font-family: "Merriweather", serif;
     color: hsl(230, 75%, 15%);
 }
 
 .forgot-pass-remember-me a {
     text-decoration: none;
     font-family: 'Nunito Sans', sans-serif;
-    font-style: italic;
+    font-style: italic !important;
 }
 
 .Submit-Btn {
@@ -127,7 +127,7 @@
     cursor: pointer;
     font-size: 17px;
     letter-spacing: 1px;
-    font-family: "Syne", sans-serif;
+    font-family: "Merriweather", serif;
     font-weight: bolder;
     transition: 0.4s;
     background-color: hsl(230, 75%, 56%);
@@ -142,7 +142,7 @@
 
 .dont-have-account,
 .already-have-account {
-    font-family: "Syne", sans-serif;
+    font-family: "Merriweather", serif;
     letter-spacing: 0.3px;
     font-size: 14px;
     color: #747474;
@@ -150,7 +150,7 @@
 
 .dont-have-account a,
 .already-have-account a {
-    font-family: "Syne", sans-serif;
+    font-family: "Merriweather", serif;
     font-style: italic !important;
     text-decoration: none;
     color: #002b27;

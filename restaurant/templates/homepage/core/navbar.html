@@ -13,8 +13,8 @@
     <a href="{% url 'res.home' %}" class="nav__link">FoodPicker</a>
 
     <!-- Mobile navigation -->
-    <div class="nav__toggle" id="nav-toggle" >
-      <i class="ri-menu-line" ></i>
+    <div class="nav__toggle" id="nav-toggle">
+      <i class="ri-menu-line"></i>
     </div>
 
     <div class="nav__menu" id="nav-menu">
@@ -37,7 +37,6 @@
         <li class="nav__item">
           <a href="{% url 'res.form' %}" class="nav__link">Form</a>
         </li>
-        
       </ul>
 
       <div class="nav__close" id="nav-close">
@@ -54,7 +53,12 @@
         {% if user.is_authenticated %}
         <a class="nav__item">
           <h4>Welcome, {{ user.username }}</h4>
-          <a href="{% url 'signout' %}" class="nav__link nav__logout" style="font-size: medium">Log Out</a>
+          <a
+            href="{% url 'signout' %}"
+            class="nav__link nav__logout"
+            style="font-size: medium"
+            >Log Out</a
+          >
         </a>
         {% else %}
         <a class="nav__item">
@@ -64,7 +68,6 @@
       </div>
     </div>
   </nav>
-
 </header>
 
 <!--==================== SEARCH ====================-->
@@ -110,14 +113,13 @@
           class="login__input"
           required
         />
-        <input type="checkbox" onclick="myFunction()" />Show Password
-      </div>
+        <input type="checkbox" onclick="myFunction()" />Show Password</div>
     </div>
     <div>
       <p class="login__signup">
         You do not have an account? <a href="{% url 'signup' %}">Sign up</a>
       </p>
-      <a href="{% url 'reset_password' %}" class="login__forgot"
+      <a href="{% url 'resetpass' %}" class="login__forgot"
         >Forgot password?</a
       >
 
