@@ -40,7 +40,7 @@ ADMIN_HOST_USER=env("ADMIN_HOST_USER")
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 
 ALLOWED_HOSTS = ['*']
@@ -96,7 +96,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "base.wsgi.app"
+WSGI_APPLICATION = "base.wsgi.application"
 
 
 # Database
