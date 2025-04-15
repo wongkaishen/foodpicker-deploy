@@ -74,16 +74,109 @@
     </div>
 </section>
 
+<!-- <section class="reviews-section">
+    <div class="container">
+        <h2 class="section-title"> Reviews</h2>
+        <div class="reviews-carousel">
+            <div class="review-card">
+                <div class="review-header">
+                    <img src="{% static 'img/pp.jpg' %}" alt="User Avatar" class="review-avatar" onerror="this.src='{% static 'img/default_pp.jpg' %}'">
+                    <div class="review-meta">
+                        <h3 class="reviewer-name">Emily Chen</h3>
+                    </div>
+                </div>
+                <div class="review-rating">
+                    <div class="stars">
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                    </div>
+                    <span class="rating-text">5.0</span>
+                </div>
+                <p class="review-text">"This app is a game-changer! I discovered an amazing Korean BBQ place that I never knew existed in my neighborhood. The recommendations are spot-on and the interface is super user-friendly."</p>
+                <div class="review-tags">
+                    <span class="tag">Korean BBQ</span>
+                    <span class="tag">Hidden Gem</span>
+                </div>
+            </div>
+
+            <div class="review-card">
+                <div class="review-header">
+                    <img src="{% static 'img/pp.jpg' %}" alt="User Avatar" class="review-avatar" onerror="this.src='{% static 'img/default_pp.jpg' %}'">
+                    <div class="review-meta">
+                        <h3 class="reviewer-name">James Wilson</h3>
+                    </div>
+                </div>
+                <div class="review-rating">
+                    <div class="stars">
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-half-fill"></i>
+                    </div>
+                    <span class="rating-text">4.5</span>
+                </div>
+                <p class="review-text">"Love the map feature! Makes it so easy to find new places when I'm in different parts of the city. The filters are really helpful for finding exactly what you're craving."</p>
+                <div class="review-tags">
+                    <span class="tag">Map Feature</span>
+                    <span class="tag">Easy to Use</span>
+                </div>
+            </div>
+
+            <div class="review-card">
+                <div class="review-header">
+                    <img src="{% static 'img/pp.jpg' %}" alt="User Avatar" class="review-avatar" onerror="this.src='{% static 'img/default_pp.jpg' %}'">
+                    <div class="review-meta">
+                        <h3 class="reviewer-name">Sofia Martinez</h3>
+                    </div>
+                </div>
+                <div class="review-rating">
+                    <div class="stars">
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-line"></i>
+                    </div>
+                    <span class="rating-text">4.0</span>
+                </div>
+                <p class="review-text">"Perfect for group dinners! The diverse cuisine options and price range filters helped us find the perfect spot for our team celebration. Will definitely keep using this!"</p>
+                <div class="review-tags">
+                    <span class="tag">Group Friendly</span>
+                    <span class="tag">Price Filters</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section> -->
+
 <!-- Featured Restaurants Section -->
 <section class="featured-section">
     <div class="container">
         <h2 class="section-title">Featured Restaurants</h2>
         <div class="featured-grid" id="featured-restaurants">
-            <!-- Featured restaurants will be loaded here -->
-            <div class="loading-spinner">
-                <div class="spinner"></div>
-                <p>Loading restaurants...</p>
+            {% for restaurant in featured_restaurants %}
+            <div class="restaurant-card">
+                <div class="restaurant-image" style="background-image: url('{% if restaurant.image %}{{ restaurant.image.url }}{% else %}{% static 'img/default-restaurant.jpg' %}{% endif %}');">
+                    {% if not restaurant.image %}
+                    <div class="no-image-overlay">
+                        <i class="ri-restaurant-2-line"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="restaurant-info">
+                    <h3 class="restaurant-name">{{ restaurant.name }}</h3>
+                    <p class="restaurant-cuisine">Cuisine: {{ restaurant.get_cuisine_type_display }}</p>
+                    <p class="restaurant-price">Price: {{ restaurant.get_price_range_display }}</p>
+                    <p class="restaurant-rating">Rating: {{ restaurant.average_rating }}</p>
+                    <p class="restaurant-halal">Halal: {{ restaurant.halal|yesno:"Yes,No" }}</p>
+                    <a href="{% url 'restaurant_detail' restaurant.id %}" class="restaurant-link">View Details</a>
+                </div>
             </div>
+            {% endfor %}
         </div>
     </div>
 </section>
@@ -212,6 +305,165 @@
         color: var(--text-color);
     }
 
+    .reviews-section {
+        padding: 4rem 1.5rem;
+        background-color: var(--container-color);
+    }
+
+    .reviews-carousel {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .review-card {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .review-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    .review-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .review-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 1rem;
+        border: 2px solid var(--first-color);
+    }
+
+    .review-meta {
+        flex: 1;
+    }
+
+    .reviewer-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--title-color);
+        margin: 0;
+    }
+
+    .review-rating {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .stars {
+        color: #ffd700;
+        margin-right: 0.5rem;
+    }
+
+    .stars i {
+        margin-right: 2px;
+    }
+
+    .rating-text {
+        font-weight: 600;
+        color: var(--title-color);
+    }
+
+    .review-text {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: var(--text-color);
+        margin-bottom: 1rem;
+    }
+
+    .review-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .tag {
+        background-color: var(--container-color);
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        color: var(--first-color);
+        font-weight: 500;
+    }
+
+    .reviews-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .review-card {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+    .review-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .review-avatar {
+        width: 60px;
+        height: 60px;
+        background-color: var(--first-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .review-avatar i {
+        font-size: 2rem;
+        color: white;
+    }
+
+    .review-content {
+        flex: 1;
+    }
+
+    .review-stars {
+        color: #ffd700;
+        margin-bottom: 1rem;
+    }
+
+    .review-stars i {
+        margin: 0 2px;
+    }
+
+    .review-text {
+        color: var(--text-color);
+        font-style: italic;
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+
+    .review-author {
+        color: var(--title-color);
+        font-weight: bold;
+    }
+
     /* Featured Restaurants Section */
     .featured-section {
         padding: 4rem 1.5rem;
@@ -242,6 +494,25 @@
         height: 200px;
         background-size: cover;
         background-position: center;
+        position: relative;
+        background-color: #f8f9fa;
+    }
+
+    .no-image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .no-image-overlay i {
+        font-size: 3rem;
+        color: #6c757d;
     }
 
     .restaurant-info {
@@ -354,6 +625,10 @@
         .features-grid {
             grid-template-columns: 1fr;
         }
+
+        .reviews-carousel {
+            grid-template-columns: 1fr;
+        }
     }
 
     .message-popup {
@@ -422,76 +697,7 @@
 
 <!-- JavaScript for Featured Restaurants -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Fetch featured restaurants (top 3 by rating)
-        fetch('/api/featured-restaurants/')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                displayFeaturedRestaurants(data.restaurants);
-            })
-            .catch(error => {
-                console.error('Error fetching restaurants:', error);
-                document.getElementById('featured-restaurants').innerHTML = `
-                    <div class="error-message" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
-                        <p>Unable to load restaurants at this time. Please try again later.</p>
-                    </div>
-                `;
-            });
-
-        const messagePopups = document.querySelectorAll('.message-popup');
-        messagePopups.forEach(popup => {
-            // Show the popup with a fade-in effect
-            popup.style.opacity = 0;
-            popup.style.transition = 'opacity 0.5s';
-            setTimeout(() => popup.style.opacity = 1, 100);
-
-            // Automatically hide the popup after 5 seconds
-            setTimeout(() => {
-                popup.style.opacity = 0;
-                setTimeout(() => popup.remove(), 500); // Remove the element after fade-out
-            }, 5000);
-        });
-    });
-
-    function displayFeaturedRestaurants(restaurants) {
-        const container = document.getElementById('featured-restaurants');
-        
-        // If no restaurants, show a message
-        if (!restaurants || restaurants.length === 0) {
-            container.innerHTML = `
-                <div class="error-message" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
-                    <p>No featured restaurants available at this time.</p>
-                </div>
-            `;
-            return;
-        }
-
-        // Clear loading spinner
-        container.innerHTML = '';
-        
-        // Add restaurant cards
-        restaurants.forEach(restaurant => {
-            const card = document.createElement('div');
-            card.className = 'restaurant-card';
-            
-            card.innerHTML = `
-                <div class="restaurant-image" style="background-image: url('/static/img/restaurant-placeholder.jpg');"></div>
-                <div class="restaurant-info">
-                    <h3 class="restaurant-name">${restaurant.name}</h3>
-                    <p class="restaurant-cuisine">${restaurant.cuisine_type}</p>
-                    <p class="restaurant-price">${restaurant.price_range}</p>
-                    <a href="/restaurant/${restaurant.id}/" class="restaurant-link">View Details</a>
-                </div>
-            `;
-            
-            container.appendChild(card);
-        });
-    }
+    
 </script>
 
 {% endblock %}

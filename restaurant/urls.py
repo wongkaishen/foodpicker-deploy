@@ -3,7 +3,6 @@ from . import views
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    path("login/", auth_views.LoginView.as_view(template_name="accounts/signin.html"), name="login"),
     path('',views.home,name="res.home"),#redirect to home
     path('about/',views.about,name="res.about"),   #redirect to about page
     path('search/',views.search,name="res.search"),  #redirect to search page
@@ -18,5 +17,4 @@ urlpatterns = [
     path('map/',views.get_res_map,name="res.map"),   #for the whole map view of the restaurant
     path('password_reset/',views.reset_pass,name="resetpass"), 
     path('restaurants_within_radius/', views.restaurants_within_radius, name="restaurants_within_radius"),
-    path('api/featured-restaurants/', views.featured_restaurants_api, name="featured_restaurants_api"),
 ]

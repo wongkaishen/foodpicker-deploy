@@ -324,6 +324,14 @@
           {% endfor %}
         </select>
       </div>
+      <div class="filter-group">
+        <label for="halalFilter">Halal:</label>
+        <select id="halalFilter" class="form-select">
+          <option value="">All</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
     </div>
 
     <div class="map-actions">
@@ -384,6 +392,7 @@
   const radiusFilter = document.getElementById("radiusFilter");
   const cuisineFilter = document.getElementById("cuisineFilter");
   const priceFilter = document.getElementById("priceFilter");
+  const halalFilter = document.getElementById("halalFilter");
   const loadingContainer = document.getElementById("loadingContainer");
   const refreshLocationBtn = document.getElementById("refreshLocationBtn");
   const findNearestBtn = document.getElementById("findNearestBtn");
@@ -455,7 +464,7 @@
     };
   }
 
-  async function fetchRestaurants(radius, cuisine = "", price = "") {
+  async function fetchRestaurants(radius, cuisine = "", price = "", halal = "") {
     if (!userLat || !userLon) {
       showNotification("User location not available.", "error");
       return;
@@ -474,7 +483,8 @@
         longitude: userLon,
         radius: radius,
         cuisine: cuisine,
-        price: price
+        price: price,
+        halal: halal
       });
 
       const response = await fetch(`/restaurants_within_radius/?${params.toString()}`);
@@ -551,6 +561,10 @@
             <i class="ri-money-dollar-circle-line"></i>
             <span>Price: ${restaurant.price_range || "Various"}</span>
           </div>
+          <div class="popup-info-item">
+            <i class="ri-check-double-line"></i>
+            <span>Halal: ${restaurant.halal ? "Yes" : "No"}</span>
+          </div>
         </div>
         <a href="/restaurant/${restaurant.id}/" class="details-link">View Details</a>
       </div>
@@ -559,21 +573,25 @@
   }
 
   // Debounced version of fetchRestaurants
-  const debouncedFetchRestaurants = debounce((radius, cuisine, price) => {
-    fetchRestaurants(radius, cuisine, price);
+  const debouncedFetchRestaurants = debounce((radius, cuisine, price, halal) => {
+    fetchRestaurants(radius, cuisine, price, halal);
   }, FETCH_DELAY);
 
   // Event listeners
   radiusFilter.addEventListener("change", () =>
-    debouncedFetchRestaurants(radiusFilter.value, cuisineFilter.value, priceFilter.value)
+    debouncedFetchRestaurants(radiusFilter.value, cuisineFilter.value, priceFilter.value, halalFilter.value)
   );
 
   cuisineFilter.addEventListener("change", () =>
-    debouncedFetchRestaurants(radiusFilter.value, cuisineFilter.value, priceFilter.value)
+    debouncedFetchRestaurants(radiusFilter.value, cuisineFilter.value, priceFilter.value, halalFilter.value)
   );
 
   priceFilter.addEventListener("change", () =>
-    debouncedFetchRestaurants(radiusFilter.value, cuisineFilter.value, priceFilter.value)
+    debouncedFetchRestaurants(radiusFilter.value, cuisineFilter.value, priceFilter.value, halalFilter.value)
+  );
+
+  halalFilter.addEventListener("change", () =>
+    debouncedFetchRestaurants(radiusFilter.value, cuisineFilter.value, priceFilter.value, halalFilter.value)
   );
 
   refreshLocationBtn.addEventListener("click", getUserLocation);
@@ -638,7 +656,8 @@
     fetchRestaurants(
       radiusFilter.value,
       cuisineFilter.value,
-      priceFilter.value
+      priceFilter.value,
+      halalFilter.value
     );
   }
 

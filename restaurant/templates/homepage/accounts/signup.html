@@ -3,12 +3,31 @@
 {% load static %}
 
 {% for message in messages %}
-<div class="aleat alert-{{message.tags}} alert-dismissible fade show" role="alert">
-    <strong>Messages:</strong> {{message}}
-    <button type="button" class="button" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
-</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const notificationContainer = document.getElementById('notification-container');
+        const notification = document.createElement('div');
+        notification.className = `notification notification-{{ message.tags }}`;
+        notification.innerHTML = `
+            <strong>Message:</strong> {{ message }}
+            <button class="close-notification">&times;</button>
+        `;
+
+        // Add close functionality
+        notification.querySelector('.close-notification').addEventListener('click', () => {
+            notification.style.opacity = 0;
+            setTimeout(() => notification.remove(), 500);
+        });
+
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            notification.style.opacity = 0;
+            setTimeout(() => notification.remove(), 500);
+        }, 5000);
+
+        notificationContainer.appendChild(notification);
+    });
+</script>
 {% endfor %}
 <link rel="stylesheet" href="{% static 'css/accounts/signup.css' %}">
 
@@ -22,7 +41,7 @@
             </div>
 
             <div id="RegistrationFrom">
-                <form action="/signup" method="POST" class="signup_main">
+                <form action="{% url 'signup' %}" method="POST" class="signup_main">
                     {% csrf_token %}
                     <div class="center">
                         <input type="text" id="username" class="input-text" name="username"
@@ -42,7 +61,7 @@
                     </div>
                     <div class="center mt-20">
                         <input onclick="return ValidateRegistrationForm();" class="Submit-Btn" type="submit"
-                            value="Registration" id="RegistrationitBtn">
+                            value="Register" id="RegistrationitBtn">
                     </div>
                 </form>
                 <p class="center mt-20 already-have-account">

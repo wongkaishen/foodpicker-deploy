@@ -11,6 +11,7 @@ class RestaurantAdmin(admin.ModelAdmin):
         'display_rating',
         'city',
         'approved',
+        'halal',  # Added halal field to display
         'display_contact',
         'submitted_by',
     )
@@ -22,6 +23,7 @@ class RestaurantAdmin(admin.ModelAdmin):
         'delivery_available',
         'takeout_available',
         'city',
+        'halal',  # Added halal field to filter
     )
     
     search_fields = (
@@ -139,7 +141,16 @@ class ApprovedRestaurantAdmin(admin.ModelAdmin):
         'price_range',
         'average_rating',
         'city',
+        'halal',  # Added halal field to display
         'submitted_by',
+    )
+    list_filter = (
+        'cuisine_type',
+        'price_range',
+        'delivery_available',
+        'takeout_available',
+        'city',
+        'halal',  # Added halal field to filter
     )
     search_fields = (
         'name',

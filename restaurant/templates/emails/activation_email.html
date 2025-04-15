@@ -1,0 +1,38 @@
+{% autoescape off %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to FoodPicker</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; color: #333;">
+    <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 10px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <h2 style="color: #ff5722;">Welcome to <strong>FoodPicker</strong>!</h2>
+
+        <p>Hi {{ name }},</p>
+
+        <p>Thank you for signing up with FoodPicker! We're excited to have you on board.</p>
+
+        <p>To activate your account, please confirm your email address by clicking the image below:</p>
+
+        <p style="text-align: center; margin: 30px 0;">
+            <a href="http://{{ domain }}{% url 'activate' uidb64=uid token=token %}">
+                <img src="https://example.com/images/confirm-button.png" 
+                     alt="Confirm Email" 
+                     style="width: 200px; height: auto; border: none;">
+            </a>
+        </p>
+
+        <p>If the image above doesn't work, you can also confirm your email by clicking the link below:</p>
+        <p style="word-break: break-all; color: #555;">
+            http://{{ domain }}{% url 'activate' uidb64=uid token=token %}
+        </p>
+
+        <p>Thanks again, and welcome to the FoodPicker community!</p>
+
+        <p style="margin-top: 40px;">Best regards,<br>
+        Micheal Wong</p>
+    </div>
+</body>
+</html>
+{% endautoescape %}

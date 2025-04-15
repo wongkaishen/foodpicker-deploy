@@ -10,7 +10,7 @@
 {% endfor %}
 
 <div class="restaurant-detail-container">
-    <div class="restaurant-header">
+    <div class="restaurant-header" {% if restaurant.image %}style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{{ restaurant.image.url }}');"{% endif %}>
         <div class="restaurant-header-content">
             <h1 class="restaurant-name">{{ restaurant.name }}</h1>
             <div class="restaurant-meta">
@@ -31,6 +31,14 @@
                     <i class="ri-shopping-bag-line"></i> Takeout
                 </span>
                 {% endif %}
+                {% if restaurant.halal %}
+                <span class="tag halal-tag">
+                    <i class="ri-check-line"></i> Halal Certified
+                </span>
+                {% endif %}
+            </div>
+            <div class="restaurant-added">
+                <small>Added on {{ restaurant.created_at|date:"F j, Y" }}</small>
             </div>
         </div>
     </div>
@@ -45,58 +53,69 @@
             <div class="info-card contact-card">
                 <h2>Contact Information</h2>
                 <div class="contact-info">
-                    {% if restaurant.phone %}
                     <div class="contact-item">
                         <div class="contact-icon">
                             <i class="ri-phone-line"></i>
                         </div>
                         <div class="contact-details">
                             <span class="contact-label">Phone</span>
-                            <a href="tel:{{ restaurant.phone }}" class="contact-link">{{ restaurant.phone }}</a>
+                            <a href="{{ restaurant.phone }}" class="contact-link">
+                                {{ restaurant.phone|default:"Not available" }}
+                            </a>
                         </div>
                     </div>
-                    {% endif %}
-                    {% if restaurant.email %}
                     <div class="contact-item">
                         <div class="contact-icon">
                             <i class="ri-mail-line"></i>
                         </div>
                         <div class="contact-details">
                             <span class="contact-label">Email</span>
-                            <a href="mailto:{{ restaurant.email }}" class="contact-link">{{ restaurant.email }}</a>
+                            <a href="mailto:{{ restaurant.email }}" class="contact-link">
+                                {{ restaurant.email|default:"Not available" }}
+                            </a>
                         </div>
                     </div>
-                    {% endif %}
-                    {% if restaurant.website %}
                     <div class="contact-item">
                         <div class="contact-icon">
                             <i class="ri-global-line"></i>
                         </div>
                         <div class="contact-details">
                             <span class="contact-label">Website</span>
-                            <a href="{{ restaurant.website }}" target="_blank" rel="noopener noreferrer" class="contact-link">{{ restaurant.website }}</a>
+                            {% if restaurant.website %}
+                            <a href="{{ restaurant.website }}" target="_blank" rel="noopener noreferrer" class="contact-link">
+                                {{ restaurant.website }}
+                            </a>
+                            {% else %}
+                            <span class="contact-link">Not available</span>
+                            {% endif %}
                         </div>
                     </div>
-                    {% endif %}
                     <div class="contact-item">
                         <div class="contact-icon">
                             <i class="ri-map-pin-line"></i>
                         </div>
                         <div class="contact-details">
                             <span class="contact-label">Address</span>
-                            <span class="contact-address">{{ restaurant.get_full_address }}</span>
+                            <span class="contact-address">
+                                {{ restaurant.street_address }},
+                                {{ restaurant.city }},
+                                {{ restaurant.state }},
+                                {{ restaurant.postcode }},
+                                {{ restaurant.country }}
+                            </span>
                         </div>
                     </div>
                     <div class="contact-actions">
-                        <button class="action-button copy-address" data-address="{{ restaurant.get_full_address }}">
+                        <button class="action-button copy-address" data-address="{{ restaurant.street_address }}, {{ restaurant.city }}, {{ restaurant.state }}, {{ restaurant.postcode }}, {{ restaurant.country|default_if_none:'Address not available' }}">
                             <i class="ri-file-copy-line"></i> Copy Address
                         </button>
+
                         {% if restaurant.phone %}
                         <button class="action-button share-contact" data-name="{{ restaurant.name }}" data-phone="{{ restaurant.phone }}">
                             <i class="ri-share-line"></i> Share Contact
                         </button>
                         {% endif %}
-                        <button class="action-button add-calendar" data-name="{{ restaurant.name }}" data-address="{{ restaurant.get_full_address }}">
+                        <button class="action-button add-calendar" data-name="{{ restaurant.name }}" data-address="{{ restaurant.get_full_address|default_if_none:'' }}">
                             <i class="ri-calendar-line"></i> Add to Calendar
                         </button>
                     </div>
@@ -107,34 +126,60 @@
                 <h2>Hours</h2>
                 <div class="hours-info">
                     {% if restaurant.is_open_24_hours %}
-                    <p>Open 24 Hours</p>
+                    <p><i class="ri-time-line"></i> <strong>Open 24 Hours</strong></p>
                     {% else %}
-                    <p>{{ restaurant.opentime|time:"g:i A" }} - {{ restaurant.closetime|time:"g:i A" }}</p>
+                    <ul class="hours-list">
+                        <li><i class="ri-sun-line"></i> <strong>Opening:</strong> {{ restaurant.opentime|time:"g:i A" }}</li>
+                        <li><i class="ri-moon-line"></i> <strong>Closing:</strong> {{ restaurant.closetime|time:"g:i A" }}</li>
+                    </ul>
                     {% endif %}
                 </div>
+                <style>
+                    .hours-info {
+                        font-size: 1rem;
+                        line-height: 1.6;
+                    }
+                    .hours-list {
+                        list-style: none;
+                        padding: 0;
+                        margin: 0 0 1rem 0;
+                    }
+                    .hours-list li {
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                        margin-bottom: 0.5rem;
+                    }
+                    .open-status {
+                        font-weight: bold;
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                    }
+                    .open-now {
+                        color: #4CAF50;
+                    }
+                    .closed-now {
+                        color: #F44336;
+                    }
+                </style>
             </div>
 
         </div>
 
         <div class="map-section">
             <div class="map-card">
-                <h2><i class="ri-map-pin-line"></i> Location</h2>
-                <div id="map"></div>
-                <div class="map-actions">
-                    <a href="https://www.google.com/maps/dir/?api=1&destination={{ restaurant.latitude }},{{ restaurant.longitude }}" 
-                       class="directions-button" target="_blank" rel="noopener noreferrer">
-                        <i class="ri-route-line"></i> Get Directions
-                    </a>
-                    <button id="shareLocation" class="share-location-button">
-                        <i class="ri-share-line"></i> Share Location
-                    </button>
-                </div>
+            <h2><i class="ri-map-pin-line"></i> Location</h2>
+            <div id="map" class="custom-map-container"></div>
+            <div class="map-actions">
+                <a href="https://www.google.com/maps/dir/?api=1&destination={{ restaurant.latitude }},{{ restaurant.longitude }}" 
+                   class="directions-button" target="_blank" rel="noopener noreferrer">
+                <i class="ri-route-line"></i> Get Directions
+                </a>
+                <button id="shareLocation" class="share-location-button">
+                <i class="ri-share-line"></i> Share Location
+                </button>
             </div>
-            <div class="info-card">
-                <h2>Location</h2>
-                <div class="address-info">
-                    <p>{{ restaurant.get_full_address }}</p>
-                </div>
             </div>
         </div>
     </div>
@@ -394,6 +439,7 @@
         border: 3px solid #fff;
         transition: all 0.3s ease;
         position: relative;
+        min-height: 400px; /* Ensure minimum height is maintained */
     }
 
     #map:hover {
@@ -520,6 +566,11 @@
 
         .restaurant-content {
             padding: 1.5rem;
+        }
+
+        /* Remove any potential map height adjustments */
+        #map {
+            height: 400px !important; /* Force height to stay consistent */
         }
     }
 </style>

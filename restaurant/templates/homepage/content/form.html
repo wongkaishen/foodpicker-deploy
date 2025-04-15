@@ -1,252 +1,2063 @@
-{% extends 'homepage/content/main.html' %}
-{% load static %}
-{% block content %}
+{% extends 'homepage/content/main.html' %} {% load static %} {% block content %}
 
-<div class="alert-container">
+<div class="page-wrapper">
+  <div class="alert-container">
     {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-        <strong>Messages:</strong> {{ message }}
+    <div
+      class="alert alert-{{ message.tags }} alert-dismissible fade show"
+      role="alert"
+    >
+      <div class="alert-content">
+        <i class="fas fa-info-circle alert-icon"></i>
+        <div class="alert-text"><strong>Messages:</strong> {{ message }}</div>
+      </div>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
     </div>
     {% endfor %}
-</div>
+  </div>
 
-<div class="form-container">
-    <h2 class="form-title">Restaurant Request Form</h2>
-
-    <form method="post" class="request-form">
-        {% csrf_token %}
-
-        <label for="language-select">Choose Language:</label>
-        <select id="language-select" class="form-control">
-            <option value="en">English</option>
-            <option value="zh">中文 (Chinese)</option>
-            <option value="ms">Bahasa Malaysia</option>
-        </select>
-
-        <label for="search_location">Search Location:</label>
-        <div class="search-container">
-            <input type="text" id="search_location" class="form-control" placeholder="Type an address">
-            <ul id="suggestions" class="dropdown-menu"></ul>
+  <div class="form-container">
+    <div class="form-header">
+      <div class="header-content">
+        <i class="fas fa-utensils header-icon"></i>
+        <div class="header-text">
+          <h2 class="form-title">Restaurant Request Form</h2>
+          <p class="form-subtitle">
+            Help us grow our restaurant database by submitting new entries
+          </p>
         </div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-step active" data-step="1">
+          <i class="fas fa-language"></i>
+          <span>Language</span>
+        </div>
+        <div class="progress-step" data-step="2">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>Location</span>
+        </div>
+        <div class="progress-step" data-step="3">
+          <i class="fas fa-info-circle"></i>
+          <span>Details</span>
+        </div>
+        <div class="progress-step" data-step="4">
+          <i class="fas fa-clock"></i>
+          <span>Hours</span>
+        </div>
+      </div>
+    </div>
 
-        {{ form.as_p }}
+    <form method="post" enctype="multipart/form-data" class="request-form">
+      {% csrf_token %}
 
-        <button type="submit" class="submit-button">Submit</button>
+      <!-- Language Selection -->
+      <div class="form-section language-section" data-section="1">
+        <div class="section-header">
+          <div class="header-left">
+            <i class="fas fa-language"></i>
+            <h3>Select Language</h3>
+          </div>
+          <div class="section-indicator">Step 1 of 4</div>
+        </div>
+        <div class="section-content">
+          <div class="form-group">
+            <label for="language-select" class="form-label"
+              >Choose your preferred language:</label
+            >
+            <div class="select-wrapper">
+              <select id="language-select" class="form-control">
+                <option value="en">English</option>
+                <option value="zh">中文 (Chinese)</option>
+                <option value="ms">Bahasa Malaysia</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location Section -->
+      <div class="form-section location-section" data-section="2">
+        <div class="section-header">
+          <div class="header-left">
+            <i class="fas fa-map-marker-alt"></i>
+            <h3>Location Details</h3>
+          </div>
+          <div class="section-indicator">Step 2 of 4</div>
+        </div>
+        <div class="section-content">
+          <div class="search-method-toggle">
+            <div class="toggle-switch">
+              <input
+                type="checkbox"
+                id="search-method-toggle"
+                class="toggle-input"
+              />
+              <label for="search-method-toggle" class="toggle-label">
+                <span class="toggle-option">Search by Text</span>
+                <span class="toggle-slider"></span>
+                <span class="toggle-option">Search by Map</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="search-by-text" class="search-method active">
+            <div class="form-group search-wrapper">
+              <label for="search_location" class="form-label"
+                >Search Location:</label
+              >
+              <i class="fas fa-search search-icon"></i>
+              <div class="search-container">
+                <input
+                  type="text"
+                  id="search_location"
+                  class="form-control with-icon"
+                  placeholder="Type an address to search"
+                />
+                <ul id="suggestions" class="dropdown-menu"></ul>
+              </div>
+            </div>
+          </div>
+
+          <div id="search-by-map" class="search-method">
+            <div class="map-container">
+              <div id="location-map"></div>
+              <div class="map-controls">
+                <button
+                  type="button"
+                  id="current-location"
+                  class="map-control-btn"
+                >
+                  <i class="fas fa-crosshairs"></i>
+                  Use Current Location
+                </button>
+                <button type="button" id="reset-map" class="map-control-btn">
+                  <i class="fas fa-undo"></i>
+                  Reset Map
+                </button>
+                <button
+                  type="button"
+                  id="geocode-address"
+                  class="map-control-btn"
+                >
+                  <i class="fas fa-search-location"></i>
+                  Find Address
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="address-fields">
+            <div class="form-group">
+              <label class="form-label">Street Address</label>
+              {{ form.street_address }}
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">City</label>
+                  {{ form.city }}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">State</label>
+                  {{ form.state }}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">Postal Code</label>
+                  {{ form.postal_code }}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="form-label">Country</label>
+                  {{ form.country }}
+                </div>
+              </div>
+            </div>
+            <div class="coordinates">
+              <div class="coordinates-header">
+                <i class="fas fa-map-pin"></i>
+                <span>Coordinates</span>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="form-label">Latitude</label>
+                    {{ form.latitude }}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="form-label">Longitude</label>
+                    {{ form.longitude }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Basic Information Section -->
+      <div class="form-section basic-info-section" data-section="3">
+        <div class="section-header">
+          <div class="header-left">
+            <i class="fas fa-info-circle"></i>
+            <h3>Basic Information</h3>
+          </div>
+          <div class="section-indicator">Step 3 of 4</div>
+        </div>
+        <div class="section-content">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Restaurant Name</label>
+                {{ form.name }}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Cuisine Type</label>
+                {{ form.cuisine_type }}
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            {{ form.description }}
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Price Range</label>
+                {{ form.price_range }}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Average Rating</label>
+                {{ form.average_rating }}
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Halal </label>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="id_halal_status" name="halal_status">
+                  <label class="form-check-label" for="id_halal_status">
+                    {{ form.halal }}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Upload Restaurant Image (Optional)</label>
+            <div class="image-upload-wrapper">
+                <input type="file" name="image" class="form-control" accept="image/*">
+                <small class="form-text text-muted">
+                    You can submit the restaurant without an image. A default image will be used.
+                </small>
+            </div>
+          </div>
+
+          <div class="divider">
+            <span>Contact Information</span>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <div class="input-group">
+                  <span class="input-group-text"
+                    ><i class="fas fa-phone"></i
+                  ></span>
+                  {{ form.phone }}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <div class="input-group">
+                  <span class="input-group-text"
+                    ><i class="fas fa-envelope"></i
+                  ></span>
+                  {{ form.email }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Website</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-globe"></i></span>
+              {{ form.website }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Operating Hours Section -->
+      <div class="form-section hours-section" data-section="4">
+        <div class="section-header">
+          <div class="header-left">
+            <i class="fas fa-clock"></i>
+            <h3>Operating Hours & Services</h3>
+          </div>
+          <div class="section-indicator">Step 4 of 4</div>
+        </div>
+        <div class="section-content">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Opening Time</label>
+                <div class="input-group">
+                  <span class="input-group-text"
+                    ><i class="fas fa-sun"></i
+                  ></span>
+                  {{ form.opentime }}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="form-label">Closing Time</label>
+                <div class="input-group">
+                  <span class="input-group-text"
+                    ><i class="fas fa-moon"></i
+                  ></span>
+                  {{ form.closetime }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider">
+            <span>Available Services</span>
+          </div>
+
+          <div class="services-options">
+            <div class="service-option">
+              <div class="service-card">
+                <div class="service-icon">
+                  <i class="fas fa-motorcycle"></i>
+                </div>
+                <div class="service-details">
+                  <label for="{{ form.delivery_available.id_for_label }}">
+                    Delivery Service
+                  </label>
+                  <p class="service-description">
+                    Offer food delivery to customers
+                  </p>
+                </div>
+                {{ form.delivery_available }}
+              </div>
+            </div>
+            <div class="service-option">
+              <div class="service-card">
+                <div class="service-icon">
+                  <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="service-details">
+                  <label for="{{ form.takeout_available.id_for_label }}">
+                    Takeout Service
+                  </label>
+                  <p class="service-description">
+                    Allow customers to pick up their orders
+                  </p>
+                </div>
+                {{ form.takeout_available }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          class="nav-button prev-button"
+          style="display: none"
+        >
+          <i class="fas fa-arrow-left"></i>
+          Previous
+        </button>
+        <button type="button" class="nav-button next-button">
+          Next
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <button type="submit" class="submit-button" style="display: none">
+          <i class="fas fa-paper-plane"></i>
+          Submit Restaurant
+        </button>
+      </div>
     </form>
+  </div>
 </div>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<!-- External CSS -->
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+/>
+
+<!-- External JS -->
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const searchInput = document.getElementById("search_location");
-        const suggestionsList = document.getElementById("suggestions");
-        const languageSelect = document.getElementById("language-select");
-
-        const latitudeInput = document.getElementById("id_latitude");
-        const longitudeInput = document.getElementById("id_longitude");
-        const streetInput = document.getElementById("id_street_address");
-        const cityInput = document.getElementById("id_city");
-        const stateInput = document.getElementById("id_state");
-        const postalCodeInput = document.getElementById("id_postal_code");
-        const countryInput = document.getElementById("id_country");
-
-        let debounceTimer;
-        const cache = new Map();
-
-        function fetchLocations(query) {
-            if (cache.has(query)) {
-                displayResults(cache.get(query));
-                return;
-            }
-
-            const lang = languageSelect.value || 'en';
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=MY&addressdetails=1&extratags=1&accept-language=${lang}`;
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.length === 0) {
-                        suggestionsList.style.display = "none";
-                        return;
-                    }
-
-                    const limitedResults = data.slice(0, 5);
-                    cache.set(query, limitedResults);
-                    displayResults(limitedResults);
-                })
-                .catch(error => {
-                    console.error("Error fetching data:", error);
-                    suggestionsList.style.display = "none";
-                });
-        }
-
-        function displayResults(data) {
-            suggestionsList.innerHTML = "";
-            suggestionsList.style.display = "block";
-
-            data.forEach(place => {
-                const listItem = document.createElement("li");
-                listItem.textContent = place.display_name;
-                listItem.dataset.lat = place.lat;
-                listItem.dataset.lon = place.lon;
-                listItem.dataset.details = JSON.stringify(place.address || {});
-
-                listItem.addEventListener("click", function () {
-                    searchInput.value = place.display_name;
-                    latitudeInput.value = place.lat;
-                    longitudeInput.value = place.lon;
-
-                    const address = JSON.parse(listItem.dataset.details);
-                    streetInput.value = address.road || "";
-                    cityInput.value = address.city || address.town || address.village || "";
-                    stateInput.value = address.state || "";
-                    postalCodeInput.value = address.postcode || "";
-                    countryInput.value = "Malaysia";
-
-                    suggestionsList.style.display = "none";
-                });
-
-                suggestionsList.appendChild(listItem);
-            });
-        }
-
-        searchInput.addEventListener("input", function () {
-            clearTimeout(debounceTimer);
-            const query = searchInput.value.trim();
-            if (query.length < 3) {
-                suggestionsList.style.display = "none";
-                return;
-            }
-            debounceTimer = setTimeout(() => {
-                fetchLocations(query);
-            }, 300);
-        });
-
-        languageSelect.addEventListener("change", function () {
-            if (searchInput.value.trim().length > 0) {
-                fetchLocations(searchInput.value.trim());
-            }
-        });
-
-        document.addEventListener("click", function (event) {
-            if (!searchInput.contains(event.target) && !suggestionsList.contains(event.target)) {
-                suggestionsList.style.display = "none";
-            }
-        });
-    });
-</script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <style>
-    /* Alert Messages */
-    .alert-container {
-        max-width: 800px;
-        margin: 1rem auto;
-        padding: 0 1rem;
-    }
+  /* Page Wrapper */
+  .page-wrapper {
+    min-height: 100vh;
+    background: #f8f9fa;
+    padding: 2rem 0;
+  }
 
-    .alert {
-        margin-bottom: 1rem;
-    }
+  /* Form Container Styles */
+  .form-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
 
-    /* Form Container */
-    .form-container {
-        max-width: 600px;
-        margin: 2rem auto;
-        padding: 2rem;
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        text-align: center;
+  /* Form Header */
+  .form-header {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+
+  .header-content {
+    background: linear-gradient(135deg, #0468aa, var(--first-color));
+    padding: 2rem;
+    color: white;
+    text-align: center;
+    position: relative;
+  }
+
+  .header-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-title {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  .form-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+  }
+
+  /* Progress Bar */
+  .progress-bar {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    background: white;
+  }
+
+  .progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6c757d;
+    position: relative;
+    flex: 1;
+  }
+
+  .progress-step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 25%;
+    right: -50%;
+    width: 100%;
+    height: 2px;
+    background: #e9ecef;
+    z-index: 0;
+  }
+
+  .progress-step.active {
+    color: #0468aa;
+  }
+
+  .progress-step.completed {
+    color: #28a745;
+  }
+
+  .progress-step i {
+    font-size: 1.5rem;
+    z-index: 1;
+
+    background: white;
+    padding: 0.5rem;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Section Styles */
+  .form-section {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    display: none;
+  }
+
+  .form-section.active {
+    display: block;
+  }
+
+  .section-header {
+    background: #f8f9fa;
+    padding: 1.2rem;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .section-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: #2c3e50;
+  }
+
+  .section-header i {
+    color: #0468aa;
+    font-size: 1.3rem;
+  }
+
+  .section-indicator {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 500;
+  }
+
+  .section-content {
+    padding: 2rem;
+  }
+
+  /* Form Controls */
+  .form-group {
+    margin-bottom: 2rem;
+    position: relative;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 0.8rem;
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #2c3e50;
+    background-color: #fff;
+    border: 1.5px solid #dee2e6;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+    min-height: 45px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .form-control:hover {
+    border-color: #adb5bd;
+  }
+
+  .form-control:focus {
+    border-color: #0468aa;
+    box-shadow: 0 0 0 4px rgba(4, 104, 170, 0.1);
+    outline: none;
+  }
+
+  .form-control::placeholder {
+    color: #adb5bd;
+    font-size: 0.95rem;
+    opacity: 0.8;
+  }
+
+  .form-control:disabled,
+  .form-control[readonly] {
+    background-color: #f8f9fa;
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  /* Input Groups */
+  .input-group {
+    display: flex;
+    align-items: stretch;
+    position: relative;
+  }
+
+  .input-group-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border: 1.5px solid #dee2e6;
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    min-width: 45px;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .input-group .form-control {
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+    padding-left: 0.75rem;
+  }
+
+  .input-group:hover .input-group-text {
+    border-color: #adb5bd;
+  }
+
+  .input-group:focus-within .input-group-text {
+    border-color: #0468aa;
+    color: #0468aa;
+    background-color: #f8f9fa;
+  }
+
+  .input-group:focus-within .form-control {
+    border-color: #0468aa;
+  }
+
+  /* Search Input Specific Styles */
+  .search-container {
+    position: relative;
+    margin-bottom: 1rem;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 67%;
+
+    transform: translateY(-50%);
+    color: #6c757d;
+    z-index: 2;
+    transition: color 0.2s ease;
+  }
+
+  input.with-icon {
+    padding-left: 2.75rem;
+  }
+
+  .search-container:focus-within .search-icon {
+    color: #0468aa;
+  }
+
+  /* Textarea Specific Styles */
+  textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+    line-height: 1.6;
+    padding-top: 0.75rem;
+  }
+
+  /* Select Specific Styles */
+  select.form-control {
+    padding-right: 2.5rem;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+  }
+
+  select.form-control:focus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230468aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  }
+
+  /* Error State */
+  .form-control.is-invalid {
+    border-color: #dc3545;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3E%3Ccircle cx='6' cy='6' r='4.5'/%3E%3Cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3E%3Ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+  }
+
+  .form-control.is-invalid:focus {
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.1);
+  }
+
+  /* Search Container and Suggestions */
+  .search-container {
+    position: relative;
+    margin-bottom: 0.5rem;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 1.2rem;
+    top: 58px;
+
+    transform: translateY(-50%);
+    color: #6c757d;
+    z-index: 2;
+  }
+
+  input.with-icon {
+    padding-left: 3rem;
+  }
+
+  #suggestions {
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-top: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 3;
+
+    border: 1px solid #e9ecef;
+    padding: 0.5rem 0;
+    display: none;
+  }
+
+  #suggestions::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  #suggestions::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  #suggestions::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+  }
+
+  #suggestions::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+
+  #suggestions li {
+    padding: 0.8rem 1.2rem;
+    cursor: pointer;
+    list-style: none;
+    color: #2c3e50;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #f1f1f1;
+    transition: all 0.2s ease;
+  }
+
+  #suggestions li:last-child {
+    border-bottom: none;
+  }
+
+  #suggestions li:before {
+    content: "\f3c5";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    margin-right: 0.8rem;
+    color: #0468aa;
+    font-size: 0.9rem;
+  }
+
+  #suggestions li:hover {
+    background-color: #f8f9fa;
+    padding-left: 1.5rem;
+  }
+
+  #suggestions li.loading,
+  #suggestions li.no-results,
+  #suggestions li.error {
+    padding: 1rem;
+    text-align: center;
+    color: #6c757d;
+  }
+
+  #suggestions li.loading:before,
+  #suggestions li.no-results:before,
+  #suggestions li.error:before {
+    display: none;
+  }
+
+  #suggestions li.loading i {
+    margin-right: 0.5rem;
+    color: #0468aa;
+  }
+
+  /* Divider */
+  .divider {
+    text-align: center;
+    margin: 2rem 0;
+    position: relative;
+  }
+
+  .divider::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background: #e9ecef;
+  }
+
+  .divider span {
+    background: white;
+    padding: 0 1rem;
+    color: #6c757d;
+    position: relative;
+    font-weight: 500;
+  }
+
+  /* Services Section */
+  .services-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .service-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .service-card:hover {
+    background: #e9ecef;
+  }
+
+  .service-icon {
+    width: 50px;
+    height: 50px;
+    background: #0468aa;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+  }
+
+  .service-details {
+    flex: 1;
+  }
+
+  .service-details label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+  }
+
+  .service-description {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin: 0;
+  }
+
+  /* Navigation Buttons */
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .nav-button,
+  .submit-button {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .nav-button {
+    background: #f8f9fa;
+    color: #2c3e50;
+  }
+
+  .nav-button:hover {
+    background: #e9ecef;
+  }
+
+  .submit-button {
+    background: linear-gradient(135deg, #0468aa, #0f1792);
+    color: white;
+  }
+
+  .submit-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Coordinates Section */
+  .coordinates {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+  }
+
+  .coordinates-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #2c3e50;
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .page-wrapper {
+      padding: 1rem 0;
     }
 
     .form-title {
-        font-size: 2rem;
-        margin-bottom: 1.5rem;
-        color: #0468aa;
-        text-shadow: 2px 2px 4px rgba(33, 155, 236, 0.3);
+      font-size: 1.8rem;
     }
 
-    /* Form Fields */
-    .request-form input,
-    .request-form select,
-    .request-form textarea {
-        width: 100%;
-        padding: 0.8rem;
-        margin-bottom: 1rem;
-        border: 2px solid #0468aa;
-        border-radius: 6px;
-        font-size: 1rem;
+    .progress-bar {
+      padding: 1rem;
+      z-index: 0;
     }
 
-    .request-form input:focus,
-    .request-form select:focus,
-    .request-form textarea:focus {
-        border-color: #0f1792;
-        outline: none;
+    .progress-step span {
+      display: none;
+      z-index: 0;
     }
 
-    /* Submit Button */
-    .submit-button {
-        background-color: #0577d4;
-        border: none;
-        color: #fff;
-        font-size: 1rem;
-        padding: 0.75rem 1.5rem;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
+    .section-content {
+      padding: 1.5rem;
     }
 
-    .submit-button:hover {
-        background-color: #0f1792;
+    .services-options {
+      grid-template-columns: 1fr;
     }
+  }
 
-    /* Search Location Dropdown */
-    .search-container {
-        position: relative;
-        width: 100%;
-    }
+  /* Map Styles */
+  .map-container {
+    margin: 1.5rem 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
 
-    .dropdown-menu {
-        list-style: none;
-        background: white;
-        padding: 0;
-        border: 1px solid #ddd;
-        position: absolute;
-        width: 100%;
-        max-height: 200px;
-        overflow-y: auto;
-        display: none;
-        z-index: 1000;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
+  #location-map {
+    height: 400px;
+    width: 100%;
+    background-color: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+  }
 
-    .dropdown-menu li {
-        padding: 10px;
-        cursor: pointer;
-        border-bottom: 1px solid #ddd;
-    }
+  .map-controls {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 1000;
+  }
 
-    .dropdown-menu li:hover {
-        background: #e3f2fd;
-    }
+  .map-control-btn {
+    background: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #2c3e50;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
 
-    /* Responsive Design */
-    @media (max-width: 768px) {
-        .form-container {
-            padding: 1.5rem;
-        }
+  .map-control-btn:hover {
+    background: #f8f9fa;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
 
-        .form-title {
-            font-size: 1.5rem;
-        }
+  .map-control-btn i {
+    font-size: 1rem;
+    color: #0468aa;
+  }
 
-        .submit-button {
-            padding: 0.6rem 1.2rem;
-        }
-    }
+  .leaflet-container {
+    font-family: inherit;
+  }
+
+  .leaflet-popup-content {
+    margin: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .leaflet-popup-content p {
+    margin: 0.25rem 0;
+  }
+
+  .location-popup {
+    text-align: center;
+  }
+
+  .location-popup .coordinates {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+  }
+
+  .location-popup .confirm-location {
+    background: #0468aa;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+  }
+
+  .location-popup .confirm-location:hover {
+    background: #035289;
+  }
+
+  /* Search Method Toggle */
+  .search-method-toggle {
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .toggle-switch {
+    display: inline-block;
+    position: relative;
+  }
+
+  .toggle-input {
+    display: none;
+  }
+
+  .toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50px;
+    background: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .toggle-option {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #6c757d;
+    transition: color 0.3s ease;
+    z-index: 1;
+    padding: 0.5rem 1rem;
+  }
+
+  .toggle-slider {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: calc(50% - 4px);
+    height: calc(100% - 8px);
+    background: #0468aa;
+    border-radius: 25px;
+    transition: transform 0.3s ease;
+  }
+
+  .toggle-input:checked + .toggle-label .toggle-slider {
+    transform: translateX(100%);
+  }
+
+  .toggle-input:checked + .toggle-label .toggle-option:first-child {
+    color: #6c757d;
+  }
+
+  .toggle-input:checked + .toggle-label .toggle-option:last-child {
+    color: white;
+  }
+
+  .toggle-input:not(:checked) + .toggle-label .toggle-option:first-child {
+    color: white;
+  }
+
+  .search-method {
+    display: none;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+  }
+
+  .search-method.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Map Container Improvements */
+  .map-container {
+    margin: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+
+  .map-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .map-control-btn {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .image-upload-wrapper {
+    position: relative;
+  }
+
+  .image-upload-wrapper .form-text {
+    margin-top: 0.5rem;
+    display: block;
+  }
+
+  /* Add this to your existing styles */
+  .form-control[type="file"] {
+    padding: 0.5rem;
+    line-height: 1.5;
+  }
+
+  .form-control[type="file"]::-webkit-file-upload-button {
+    padding: 0.375rem 0.75rem;
+    margin: -0.5rem 1rem -0.5rem -0.5rem;
+    border: none;
+    background-color: #e9ecef;
+    color: #212529;
+    transition: all 0.2s ease;
+  }
+
+  .form-control[type="file"]::-webkit-file-upload-button:hover {
+    background-color: #dde0e3;
+  }
 </style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("search_location");
+    const suggestionsList = document.getElementById("suggestions");
+    const languageSelect = document.getElementById("language-select");
+
+    const latitudeInput = document.getElementById("id_latitude");
+    const longitudeInput = document.getElementById("id_longitude");
+    const streetInput = document.getElementById("id_street_address");
+    const cityInput = document.getElementById("id_city");
+    const stateInput = document.getElementById("id_state");
+    const postalCodeInput = document.getElementById("id_postal_code");
+    const countryInput = document.getElementById("id_country");
+
+    let debounceTimer;
+    const cache = new Map();
+
+    // Map initialization
+    let map = L.map("location-map").setView([4.2105, 101.9758], 7);
+    let marker;
+    const defaultCenter = [4.2105, 101.9758];
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors",
+    }).addTo(map);
+
+    // Map click handler
+    map.on("click", function (e) {
+      updateMarkerPosition(e.latlng);
+    });
+
+    // Current location button
+    document.getElementById("current-location").addEventListener("click", function() {
+      const button = this;
+      button.disabled = true;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting location...';
+    
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          function(position) {
+            const latlng = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+    
+            // Show loading state while we verify the location
+            const successMsg = document.createElement("div");
+            successMsg.className = "alert alert-info alert-dismissible fade show";
+            successMsg.innerHTML = `
+              <div class="alert-content">
+                <i class="fas fa-info-circle alert-icon"></i>
+                <div class="alert-text">Verifying location...</div>
+              </div>
+            `;
+            document.querySelector(".alert-container").appendChild(successMsg);
+    
+            // Verify the location is in Malaysia
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}&addressdetails=1`)
+              .then(response => response.json())
+              .then(data => {
+                if (data.error) {
+                  throw new Error("Could not verify location");
+                }
+    
+                // Check if the location is in Malaysia
+                if (data.address && data.address.country === "Malaysia") {
+                  map.setView(latlng, 16);
+                  updateMarkerPosition(latlng);
+                  
+                  // Update success message
+                  successMsg.innerHTML = `
+                    <div class="alert-content">
+                      <i class="fas fa-check-circle alert-icon"></i>
+                      <div class="alert-text">Location found in ${data.address.state || data.address.city || "Malaysia"}</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  `;
+                  successMsg.className = "alert alert-success alert-dismissible fade show";
+                } else {
+                  throw new Error("Location must be in Malaysia");
+                }
+              })
+              .catch(error => {
+                successMsg.remove();
+                const errorMsg = document.createElement("div");
+                errorMsg.className = "alert alert-danger alert-dismissible fade show";
+                errorMsg.innerHTML = `
+                  <div class="alert-content">
+                    <i class="fas fa-exclamation-circle alert-icon"></i>
+                    <div class="alert-text">
+                      <strong>Error:</strong> ${error.message === "Location must be in Malaysia" ? 
+                        "Your current location appears to be outside Malaysia. Please select a location within Malaysia." : 
+                        "Could not verify your location. Please try again or select location manually."}
+                    </div>
+                  </div>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                document.querySelector(".alert-container").appendChild(errorMsg);
+              })
+              .finally(() => {
+                setTimeout(() => successMsg.remove(), 3000);
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-crosshairs"></i> Use Current Location';
+              });
+          },
+          function(error) {
+            const errorMsg = document.createElement("div");
+            errorMsg.className = "alert alert-danger alert-dismissible fade show";
+            errorMsg.innerHTML = `
+              <div class="alert-content">
+                <i class="fas fa-exclamation-circle alert-icon"></i>
+                <div class="alert-text">
+                  <strong>Error:</strong> ${getGeolocationErrorMessage(error)}
+                </div>
+              </div>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.querySelector(".alert-container").appendChild(errorMsg);
+            button.disabled = false;
+            button.innerHTML = '<i class="fas fa-crosshairs"></i> Use Current Location';
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          }
+        );
+      } else {
+        alert("Geolocation is not supported by your browser");
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-crosshairs"></i> Use Current Location';
+      }
+    });
+    
+    function getGeolocationErrorMessage(error) {
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          return "Location permission was denied. Please enable location access in your browser settings.";
+        case error.POSITION_UNAVAILABLE:
+          return "Location information is unavailable. Please try again or select location manually.";
+        case error.TIMEOUT:
+          return "Location request timed out. Please check your connection and try again.";
+        default:
+          return "An unknown error occurred while getting your location.";
+      }
+    }
+    
+    function updateMarkerPosition(latlng) {
+      if (marker) {
+        map.removeLayer(marker);
+      }
+    
+      marker = L.marker(latlng, { draggable: true }).addTo(map);
+    
+      // Create popup content with more detailed information
+      const popupContent = document.createElement("div");
+      popupContent.className = "location-popup";
+      
+      // Start with loading state
+      popupContent.innerHTML = `
+        <p>Verifying location...</p>
+        <div class="coordinates">
+          ${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}
+        </div>
+        <div class="loading-spinner">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+      `;
+    
+      const popup = L.popup().setContent(popupContent);
+      marker.bindPopup(popup).openPopup();
+    
+      // Verify location is in Malaysia and get address details
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}&addressdetails=1`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) throw new Error("Could not verify location");
+    
+          if (data.address && data.address.country === "Malaysia") {
+            const address = [
+              data.address.road,
+              data.address.suburb,
+              data.address.city || data.address.town || data.address.village,
+              data.address.state,
+              "Malaysia"
+            ].filter(Boolean).join(", ");
+    
+            popupContent.innerHTML = `
+              <p>Selected Location</p>
+              <div class="address">${address}</div>
+              <div class="coordinates">
+                ${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}
+              </div>
+              <button class="confirm-location">
+                <i class="fas fa-check"></i> Confirm Location
+              </button>
+            `;
+    
+            // Add click handler to confirm button
+            const confirmBtn = popupContent.querySelector(".confirm-location");
+            if (confirmBtn) {
+              confirmBtn.addEventListener("click", function() {
+                reverseGeocode(latlng);
+                marker.closePopup();
+              });
+            }
+          } else {
+            popupContent.innerHTML = `
+              <p class="error-text">Location Error</p>
+              <div class="error-message">Please select a location within Malaysia</div>
+              <div class="coordinates">
+                ${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}
+              </div>
+            `;
+          }
+        })
+        .catch(error => {
+          popupContent.innerHTML = `
+            <p class="error-text">Verification Error</p>
+            <div class="error-message">Could not verify this location</div>
+            <div class="coordinates">
+              ${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}
+            </div>
+          `;
+        });
+    
+      // Handle marker drag
+      marker.on("dragend", function(e) {
+        updateMarkerPosition(e.target.getLatLng());
+      });
+    }
+    
+    // Add these styles to improve the popup appearance
+    const style = document.createElement('style');
+    style.textContent = `
+      .location-popup {
+        text-align: center;
+        padding: 8px;
+      }
+    
+      .location-popup .address {
+        font-size: 0.9rem;
+        margin: 8px 0;
+        color: #666;
+      }
+    
+      .location-popup .coordinates {
+        font-size: 0.8rem;
+        color: #888;
+        margin: 8px 0;
+        font-family: monospace;
+      }
+    
+      .location-popup .error-text {
+        color: #dc3545;
+        font-weight: 500;
+        margin: 0;
+      }
+    
+      .location-popup .error-message {
+        color: #dc3545;
+        font-size: 0.9rem;
+        margin: 8px 0;
+      }
+    
+      .location-popup .loading-spinner {
+        color: #0468aa;
+        margin: 8px 0;
+      }
+    
+      .location-popup .confirm-location {
+        background: #0468aa;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        margin-top: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+    
+      .location-popup .confirm-location:hover {
+        background: #035289;
+      }
+    `;
+    document.head.appendChild(style);
+    
+
+    // Reset map button
+    document.getElementById("reset-map").addEventListener("click", function () {
+      map.setView(defaultCenter, 7);
+      if (marker) {
+        map.removeLayer(marker);
+        marker = null;
+      }
+      clearLocationInputs();
+    });
+
+    function updateMarkerPosition(latlng) {
+      if (marker) {
+        map.removeLayer(marker);
+      }
+
+      marker = L.marker(latlng, { draggable: true }).addTo(map);
+
+      // Create popup content
+      const popupContent = document.createElement("div");
+      popupContent.className = "location-popup";
+      popupContent.innerHTML = `
+                <p>Selected Location</p>
+                <div class="coordinates">
+                    ${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}
+                </div>
+                <button class="confirm-location">
+                    <i class="fas fa-check"></i> Confirm Location
+                </button>
+            `;
+
+      // Add click handler to confirm button
+      const popup = L.popup().setContent(popupContent);
+      marker.bindPopup(popup).openPopup();
+
+      // Handle marker drag
+      marker.on("dragend", function (e) {
+        updateMarkerPosition(e.target.getLatLng());
+      });
+
+      // Add click handler after popup is added to DOM
+      setTimeout(() => {
+        const confirmBtn = document.querySelector(".confirm-location");
+        if (confirmBtn) {
+          confirmBtn.addEventListener("click", function () {
+            reverseGeocode(latlng);
+          });
+        }
+      }, 100);
+    }
+
+    function reverseGeocode(latlng) {
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}&addressdetails=1&accept-language=${languageSelect.value}`;
+
+      fetch(url)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            throw new Error(data.error);
+          }
+          updateLocationInputs(data, latlng);
+
+          // Update search input with formatted address
+          searchInput.value = data.display_name || "";
+
+          // Show success message
+          const successMsg = document.createElement("div");
+          successMsg.className =
+            "alert alert-success alert-dismissible fade show";
+          successMsg.innerHTML = `
+                        <div class="alert-content">
+                            <i class="fas fa-check-circle alert-icon"></i>
+                            <div class="alert-text">Location successfully updated!</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+          document.querySelector(".alert-container").appendChild(successMsg);
+
+          // Remove success message after 3 seconds
+          setTimeout(() => {
+            successMsg.remove();
+          }, 3000);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("Error getting address details. Please try again.");
+          updateLocationInputs(null, latlng);
+        });
+    }
+
+    function updateLocationInputs(data, latlng) {
+      latitudeInput.value = latlng.lat.toFixed(6);
+      longitudeInput.value = latlng.lng.toFixed(6);
+
+      if (data && data.address) {
+        streetInput.value = data.address.road || "";
+        cityInput.value =
+          data.address.city || data.address.town || data.address.village || "";
+        stateInput.value = data.address.state || "";
+        postalCodeInput.value = data.address.postcode || "";
+        countryInput.value = "Malaysia";
+        searchInput.value = data.display_name || "";
+      }
+    }
+
+    function clearLocationInputs() {
+      latitudeInput.value = "";
+      longitudeInput.value = "";
+      streetInput.value = "";
+      cityInput.value = "";
+      stateInput.value = "";
+      postalCodeInput.value = "";
+      searchInput.value = "";
+    }
+
+    // Modify existing search result click handler to update map
+    function displayResults(data) {
+      suggestionsList.innerHTML = "";
+      suggestionsList.style.display = "block";
+
+      data.forEach((place) => {
+        const listItem = document.createElement("li");
+        listItem.textContent = place.display_name;
+        listItem.dataset.lat = place.lat;
+        listItem.dataset.lon = place.lon;
+        listItem.dataset.details = JSON.stringify(place.address || {});
+
+        listItem.addEventListener("click", function () {
+          const latlng = {
+            lat: parseFloat(place.lat),
+            lng: parseFloat(place.lon),
+          };
+
+          // Update map view and marker
+          map.setView(latlng, 16);
+          updateMarkerPosition(latlng);
+
+          // Update form inputs
+          searchInput.value = place.display_name;
+          latitudeInput.value = place.lat;
+          longitudeInput.value = place.lon;
+
+          const address = JSON.parse(listItem.dataset.details);
+          streetInput.value = address.road || "";
+          cityInput.value =
+            address.city || address.town || address.village || "";
+          stateInput.value = address.state || "";
+          postalCodeInput.value = address.postcode || "";
+          countryInput.value = "Malaysia";
+
+          suggestionsList.style.display = "none";
+        });
+
+        suggestionsList.appendChild(listItem);
+      });
+    }
+
+    function fetchLocations(query) {
+      if (cache.has(query)) {
+        displayResults(cache.get(query));
+        return;
+      }
+
+      // Show loading indicator
+      suggestionsList.innerHTML =
+        '<li class="loading"><i class="fas fa-spinner fa-spin"></i> Searching...</li>';
+      suggestionsList.style.display = "block";
+
+      const lang = languageSelect.value || "en";
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+        query
+      )}&countrycodes=MY&addressdetails=1&extratags=1&accept-language=${lang}`;
+
+      fetch(url)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          if (data.length === 0) {
+            suggestionsList.innerHTML =
+              '<li class="no-results">No locations found</li>';
+            return;
+          }
+
+          const limitedResults = data.slice(0, 5);
+          cache.set(query, limitedResults);
+          displayResults(limitedResults);
+        })
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+          suggestionsList.innerHTML =
+            '<li class="error">Error searching locations. Please try again.</li>';
+        });
+    }
+
+    searchInput.addEventListener("input", function () {
+      clearTimeout(debounceTimer);
+      const query = searchInput.value.trim();
+      if (query.length < 3) {
+        suggestionsList.style.display = "none";
+        return;
+      }
+      debounceTimer = setTimeout(() => {
+        fetchLocations(query);
+      }, 300);
+    });
+
+    languageSelect.addEventListener("change", function () {
+      if (searchInput.value.trim().length > 0) {
+        fetchLocations(searchInput.value.trim());
+      }
+    });
+
+    document.addEventListener("click", function (event) {
+      if (
+        !searchInput.contains(event.target) &&
+        !suggestionsList.contains(event.target)
+      ) {
+        suggestionsList.style.display = "none";
+      }
+    });
+
+    // Form Navigation
+    const sections = document.querySelectorAll(".form-section");
+    const progressSteps = document.querySelectorAll(".progress-step");
+    const prevButton = document.querySelector(".prev-button");
+    const nextButton = document.querySelector(".next-button");
+    const submitButton = document.querySelector(".submit-button");
+    let currentSection = 0;
+
+    function updateNavigation() {
+      sections.forEach((section, index) => {
+        section.classList.toggle("active", index === currentSection);
+      });
+
+      progressSteps.forEach((step, index) => {
+        step.classList.toggle("active", index === currentSection);
+        step.classList.toggle("completed", index < currentSection);
+      });
+
+      prevButton.style.display = currentSection === 0 ? "none" : "flex";
+      nextButton.style.display =
+        currentSection === sections.length - 1 ? "none" : "flex";
+      submitButton.style.display =
+        currentSection === sections.length - 1 ? "flex" : "none";
+    }
+
+    prevButton.addEventListener("click", () => {
+      if (currentSection > 0) {
+        currentSection--;
+        updateNavigation();
+      }
+    });
+
+    nextButton.addEventListener("click", () => {
+      if (currentSection < sections.length - 1) {
+        currentSection++;
+        updateNavigation();
+      }
+    });
+
+    // Initialize first section
+    updateNavigation();
+
+    // Initialize Flatpickr
+    flatpickr("#id_opentime", {
+      enableTime: true,
+      noCalendar: true,
+      dateFormat: "H:i",
+      time_24hr: true,
+      minuteIncrement: 15,
+      allowInput: true,
+      placeholder: "Select opening time (24h)",
+      defaultHour: 9,
+      onChange: function (selectedDates, dateStr, instance) {
+        // Format display value to ensure it's in 24h format
+        if (dateStr) {
+          instance.input.value = dateStr;
+        }
+      },
+    });
+
+    flatpickr("#id_closetime", {
+      enableTime: true,
+      noCalendar: true,
+      dateFormat: "H:i",
+      time_24hr: true,
+      minuteIncrement: 15,
+      allowInput: true,
+      placeholder: "Select closing time (24h)",
+      defaultHour: 22,
+      onChange: function (selectedDates, dateStr, instance) {
+        // Format display value to ensure it's in 24h format
+        if (dateStr) {
+          instance.input.value = dateStr;
+        }
+      },
+    });
+
+    // Add animations to sections
+    sections.forEach((section) => {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            section.style.opacity = "1";
+            section.style.transform = "translateY(0)";
+          }
+        });
+      });
+
+      observer.observe(section);
+      section.style.opacity = "0";
+      section.style.transform = "translateY(20px)";
+      section.style.transition = "all 0.5s ease";
+    });
+
+    // Toggle Switch Functionality
+    const searchMethodToggle = document.getElementById("search-method-toggle");
+    const searchByText = document.getElementById("search-by-text");
+    const searchByMap = document.getElementById("search-by-map");
+
+    searchMethodToggle.addEventListener("change", function () {
+      if (!this.checked) {
+        searchByText.classList.add("active");
+        searchByMap.classList.remove("active");
+      } else {
+        searchByMap.classList.add("active");
+        searchByText.classList.remove("active");
+        setTimeout(() => {
+          map.invalidateSize();
+        }, 100);
+      }
+    });
+
+    // Set initial state to search by text
+    searchByText.classList.add("active");
+    searchByMap.classList.remove("active");
+
+    // Geocoding button functionality
+    document
+      .getElementById("geocode-address")
+      .addEventListener("click", async function () {
+        const address = {
+          street: streetInput.value,
+          city: cityInput.value,
+          state: stateInput.value,
+          postalCode: postalCodeInput.value,
+          country: countryInput.value || "Malaysia",
+        };
+        const addressString = Object.values(address)
+          .filter((val) => val)
+          .join(", ");
+
+        if (!addressString) {
+          alert("Please enter address details to geocode");
+          return;
+        }
+
+        // Show loading state
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
+
+        const result = await enhancedGeocode(addressString);
+
+        this.disabled = false;
+        this.innerHTML = '<i class="fas fa-search-location"></i> Find Address';
+
+        if (result.success) {
+          const location = result.location;
+          const latlng = {
+            lat: parseFloat(location.lat),
+            lng: parseFloat(location.lon),
+          };
+
+          // If there are alternative results, show them to the user
+          if (result.alternatives && result.alternatives.length > 0) {
+            const alternatives = result.alternatives
+              .map((alt, index) => `${index + 2}. ${alt.display_name}`)
+              .join("\n");
+
+            const confirmMessage =
+              `Multiple locations found. Please select:\n\n` +
+              `1. ${location.display_name}\n${alternatives}\n\n` +
+              `Press OK to use the first option, or Cancel to try a more specific address.`;
+
+            if (!confirm(confirmMessage)) {
+              return;
+            }
+          }
+
+          map.setView(latlng, 16);
+          updateMarkerPosition(latlng);
+
+          // Update form fields with the geocoded data
+          if (location.address) {
+            streetInput.value =
+              location.address.road || location.address.street || "";
+            cityInput.value =
+              location.address.city ||
+              location.address.town ||
+              location.address.village ||
+              "";
+            stateInput.value = location.address.state || "";
+            postalCodeInput.value = location.address.postcode || "";
+          }
+        } else {
+          alert(
+            `Could not find the location. Please try:\n1. Adding more address details\n2. Checking for typos\n3. Using the map to pick the location manually`
+          );
+        }
+      });
+
+    // Form validation function
+    function validateLocationData() {
+      const requiredFields = {
+        latitude: latitudeInput,
+        longitude: longitudeInput,
+        street: streetInput,
+        city: cityInput,
+        state: stateInput,
+        postal: postalCodeInput,
+      };
+
+      let isValid = true;
+      let missingFields = [];
+
+      for (const [field, input] of Object.entries(requiredFields)) {
+        if (!input.value.trim()) {
+          isValid = false;
+          missingFields.push(field);
+          input.classList.add("is-invalid");
+        } else {
+          input.classList.remove("is-invalid");
+        }
+      }
+
+      return { isValid, missingFields };
+    }
+
+    // Enhanced geocoding function with better error handling
+    async function enhancedGeocode(addressString) {
+      try {
+        // First try with strict parameters
+        let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          addressString
+        )}&countrycodes=MY&addressdetails=1&limit=1&bounded=1`;
+
+        let response = await fetch(url);
+        let data = await response.json();
+
+        // If no results, try with less strict parameters
+        if (data.length === 0) {
+          url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+            addressString
+          )}&countrycodes=MY&addressdetails=1&limit=3`;
+          response = await fetch(url);
+          data = await response.json();
+        }
+
+        if (data.length > 0) {
+          return {
+            success: true,
+            location: data[0],
+            alternatives: data.slice(1),
+          };
+        }
+
+        return {
+          success: false,
+          error: "Location not found",
+        };
+      } catch (error) {
+        console.error("Geocoding error:", error);
+        return {
+          success: false,
+          error: "Geocoding service error",
+        };
+      }
+    }
+
+    // Modify the form submit handler
+    document
+      .querySelector("form")
+      .addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const { isValid, missingFields } = validateLocationData();
+
+        if (!isValid) {
+          const errorMsg = document.createElement("div");
+          errorMsg.className =
+            "alert alert-danger alert-dismissible fade show";
+          errorMsg.innerHTML = `
+          <div class="alert-content">
+            <i class="fas fa-exclamation-circle alert-icon"></i>
+            <div class="alert-text">
+              <strong>Error:</strong> Please fill in all required location fields: ${missingFields.join(
+                ", "
+              )}
+            </div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+          document.querySelector(".alert-container").appendChild(errorMsg);
+          return;
+        }
+
+        // Verify coordinates with reverse geocoding
+        const lat = parseFloat(latitudeInput.value);
+        const lng = parseFloat(longitudeInput.value);
+
+        if (!isNaN(lat) && !isNaN(lng)) {
+          try {
+            const verificationUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+            const response = await fetch(verificationUrl);
+            const data = await response.json();
+
+            if (data.error) {
+              throw new Error("Invalid coordinates");
+            }
+
+            // Verify the returned address matches the input address approximately
+            const inputAddress = `${streetInput.value}, ${cityInput.value}, ${stateInput.value}`.toLowerCase();
+            const returnedAddress = data.display_name.toLowerCase();
+
+            if (
+              !returnedAddress.includes(cityInput.value.toLowerCase()) ||
+              !returnedAddress.includes(stateInput.value.toLowerCase())
+            ) {
+              const confirmContinue = confirm(
+                "The coordinates might not match the provided address exactly. Do you want to:\n\n" +
+                  "1. Continue with current location (OK)\n" +
+                  "2. Review and adjust the location (Cancel)"
+              );
+
+              if (!confirmContinue) {
+                return;
+              }
+            }
+          } catch (error) {
+            alert("Please verify the location coordinates are correct.");
+            return;
+          }
+        }
+
+        // If all validations pass, submit the form
+        this.submit();
+      });
+
+    // ...rest of existing code...
+  });
+</script>
 
 {% endblock %}

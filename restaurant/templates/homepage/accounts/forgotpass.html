@@ -42,7 +42,7 @@
                     </div>
                     <div class="center mt-20">
                         <input onclick="return ValidateRegistrationForm();" class="Submit-Btn" type="submit"
-                            value="Registration" id="RegistrationitBtn">
+                            value="Register" id="RegistrationitBtn">
                     </div>
                 </form>
                 <p class="center mt-20 already-have-account">
@@ -82,7 +82,7 @@
             <div id="ForgotPasswordForm" style="display:none;">
                 <form action="">
                     <div class="center mt-20">
-                        <input class="input-text" type="email" id="forgotPassEmail" placeholder="Email Address">
+                        <input class="input-text" type="email" id="reset_password" placeholder="Email Address">
                     </div>
                     <div class="center mt-20">
                         <input onclick="return ValidateForgotPasswordForm();" class="Submit-Btn" type="submit"
@@ -101,7 +101,7 @@
     <script src="{% static 'js/accounts/signup/validation.js' %}" type="text/javascript"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            ShowRegistrationForm();
+            ShowForgotPasswordForm();
         });
 
         function toggleRegPasswordVisibility() {

@@ -48,6 +48,7 @@ ALLOWED_HOSTS = ['*']
 LOGIN_URL = "/signup/"
 
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -95,7 +96,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "base.wsgi.application"
+WSGI_APPLICATION = "base.wsgi.app"
 
 
 # Database
@@ -113,9 +114,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",  # Use the PostGIS engine
         "NAME": "postgres",
-        "USER": "postgres.jeheqpjkquncbcsajnqv",
+        "USER": env("USER"),
         "PASSWORD": env("PASSWORD"),
-        "HOST": "aws-0-us-east-2.pooler.supabase.com",
+        "HOST": env("HOST"),
         "PORT": "6543",
     }
 }

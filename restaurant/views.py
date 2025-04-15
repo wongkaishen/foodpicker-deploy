@@ -28,7 +28,16 @@ def reset_pass(request):
     return render(request, "homepage/accounts/forgotpass.html", context)
 
 def home(request):  # home view point
-    context = {"title": "Home"}
+    # Fetch featured restaurants with ratings between 4.5 and 5 stars
+    featured_restaurants = ApprovedRestaurant.objects.filter(
+        average_rating__gte=4.5,
+        average_rating__lte=5
+    ).order_by('-average_rating', '-id')[:3]
+
+    context = {
+        "title": "Home",
+        "featured_restaurants": featured_restaurants,
+    }
     return render(
         request,
         "homepage/content/home.html",
@@ -37,6 +46,9 @@ def home(request):  # home view point
 
 
 def signup(request):  # signup view
+    if request.user.is_authenticated:
+        return redirect("res.home")  # Redirect to home if already logged in
+
     if request.method == "POST":
         username = request.POST["username"]
         fname = request.POST["fname"]
@@ -89,12 +101,12 @@ def signup(request):  # signup view
         current_site = get_current_site(request)
         email_subject = "Confirm Your Email @ Foodpicker - Login"
         message2 = render_to_string(
-            "verification/email_confirmation.html",
+            "emails/activation_email.html",
             {
                 "name": myuser.username,
                 "domain": current_site.domain,
                 "uid": urlsafe_base64_encode(force_bytes(myuser.pk)),
-                "token": generate_token().make_token(myuser),
+                "token": generate_token.make_token(myuser),
             },
         )
 
@@ -105,6 +117,7 @@ def signup(request):  # signup view
             settings.EMAIL_HOST_USER,
             [myuser.email],
         )
+        confirmation_email.content_subtype = "html"  # Set the email content to HTML
         confirmation_email.fail_silently = True
         confirmation_email.send()
 
@@ -123,6 +136,8 @@ def signup_required(view_func):
 
 
 def signin(request):
+    if request.user.is_authenticated:
+        return redirect("res.home")
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("pass1")
@@ -154,7 +169,7 @@ def activate(request, uidb64, token):
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         myuser = None
 
-    if myuser is not None and generate_token().check_token(myuser, token):
+    if myuser is not None and generate_token.check_token(myuser, token):
         myuser.is_active = True
         myuser.save()
         login(request, myuser)
@@ -172,12 +187,13 @@ def get_res_list(request):
     sort_by = request.GET.get("sort_by", "rating")
     delivery_filter = request.GET.get("delivery") == "true"
     takeout_filter = request.GET.get("takeout") == "true"
+    halal_filter = request.GET.get("halal") == "true"
 
     # Start with all approved restaurants
     restaurants = ApprovedRestaurant.objects.all()
 
     # Apply search filter
-    if search_query:
+    if (search_query):
         restaurants = restaurants.filter(
             Q(name__icontains=search_query) |
             Q(description__icontains=search_query)
@@ -191,11 +207,13 @@ def get_res_list(request):
     if price_filter:
         restaurants = restaurants.filter(price_range=price_filter)
 
-    # Apply delivery/takeout filters
+    # Apply delivery/takeout/halal filters
     if delivery_filter:
         restaurants = restaurants.filter(delivery_available=True)
     if takeout_filter:
         restaurants = restaurants.filter(takeout_available=True)
+    if halal_filter:
+        restaurants = restaurants.filter(halal=True)
 
     # Apply sorting
     sorting_options = {
@@ -217,6 +235,8 @@ def get_res_list(request):
                 "description": r.description,
                 "delivery_available": r.delivery_available,
                 "takeout_available": r.takeout_available,
+                "halal": r.halal,
+                "image": r.image.url if r.image else None
             }
             for r in restaurants
         ]
@@ -273,27 +293,6 @@ def get_res_map(request):
     }
     return render(request, "homepage/content/map.html", context)
 
-def featured_restaurants_api(request):
-    """API endpoint to fetch featured restaurants (top rated)."""
-    try:
-        # Get top 3 restaurants by rating that are approved
-        restaurants = Restaurant.objects.filter(approved=True).order_by('-average_rating')[:3]
-        
-        # Format the restaurant data
-        restaurant_data = []
-        for ApprovedRestaurant in restaurants:
-            restaurant_data.append({
-                'id': ApprovedRestaurant.id,
-                'name': ApprovedRestaurant.name,
-                'cuisine_type': ApprovedRestaurant.get_cuisine_type_display(),
-                'price_range': ApprovedRestaurant.price_range,
-                'average_rating': ApprovedRestaurant.average_rating,
-                'city': ApprovedRestaurant.city
-            })
-        
-        return JsonResponse({'restaurants': restaurant_data})
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
 
 def geocode_address(address):
     """Geocode an address using OpenStreetMap (Nominatim)."""
@@ -304,67 +303,58 @@ def geocode_address(address):
     return None, None
 
 def restaurants_within_radius(request):
-    """Return restaurants within the selected radius from the user's location."""
     try:
-        user_lat = float(request.GET.get("latitude"))
-        user_lon = float(request.GET.get("longitude"))
-        radius = float(request.GET.get("radius"))  # in km
-        cuisine_filter = request.GET.get("cuisine", "")
-        price_filter = request.GET.get("price", "")
+        user_lat = float(request.GET.get('latitude'))
+        user_lon = float(request.GET.get('longitude'))
+        radius = float(request.GET.get('radius', 5))
+        cuisine = request.GET.get('cuisine', '')
+        price = request.GET.get('price', '')
+        halal = request.GET.get('halal', '')
 
-    except (TypeError, ValueError):
-        return JsonResponse({"error": "Invalid parameters"}, status=400)
+        # Start with all approved restaurants
+        restaurants = ApprovedRestaurant.objects.all()
 
-    user_location = (user_lat, user_lon)
-    
-    # Start with a base queryset and select only needed fields
-    restaurants = ApprovedRestaurant.objects.only(
-        'id', 'name', 'latitude', 'longitude', 
-        'cuisine_type', 'price_range'
-    )
+        # Apply filters
+        if cuisine:
+            restaurants = restaurants.filter(cuisine_type=cuisine)
+        if price:
+            restaurants = restaurants.filter(price_range=price)
+        if halal:
+            halal_filter = True if halal.lower() == 'yes' else False
+            restaurants = restaurants.filter(halal=halal_filter)
 
-    # Apply filters efficiently
-    if cuisine_filter:
-        restaurants = restaurants.filter(cuisine_type=cuisine_filter)
-    if price_filter:
-        restaurants = restaurants.filter(price_range=price_filter)
+        # Calculate distances and filter by radius
+        nearby_restaurants = []
+        for restaurant in restaurants:
+            distance = geodesic(
+                (user_lat, user_lon),
+                (restaurant.latitude, restaurant.longitude)
+            ).kilometers
 
-    # Calculate rough distance bounds to reduce the number of restaurants to check
-    # 1 degree of latitude/longitude is approximately 111km at the equator
-    lat_range = radius / 111.0
-    lon_range = radius / (111.0 * abs(cos(radians(user_lat))))
-    
-    restaurants = restaurants.filter(
-        latitude__range=(user_lat - lat_range, user_lat + lat_range),
-        longitude__range=(user_lon - lon_range, user_lon + lon_range)
-    )
-    
-    # Calculate exact distances and filter
-    filtered_restaurants = []
-    for r in restaurants:
-        distance = geodesic(user_location, (r.latitude, r.longitude)).km
-        if distance <= radius:
-            filtered_restaurants.append({
-                "id": r.id,
-                "name": r.name,
-                "latitude": r.latitude,
-                "longitude": r.longitude,
-                "cuisine_type": r.get_cuisine_type_display(),
-                "price_range": r.get_price_range_display(),
-                "distance_km": distance
-            })
-    
-    # Sort by distance
-    filtered_restaurants.sort(key=lambda x: x['distance_km'])
+            if distance <= radius:
+                restaurant_data = {
+                    'id': restaurant.id,
+                    'name': restaurant.name,
+                    'latitude': restaurant.latitude,
+                    'longitude': restaurant.longitude,
+                    'cuisine_type': restaurant.get_cuisine_type_display(),
+                    'price_range': restaurant.get_price_range_display(),
+                    'distance_km': distance,
+                    'halal': restaurant.halal,
+                }
+                nearby_restaurants.append(restaurant_data)
 
-    return JsonResponse({
-        "restaurants": filtered_restaurants[:50]  # Limit to 50 results for performance
-    })
+        # Sort by distance
+        nearby_restaurants.sort(key=lambda x: x['distance_km'])
+
+        return JsonResponse({'restaurants': nearby_restaurants})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
 
 @signup_required
 def location_view(request):
     if request.method == "POST":
-        form = RestaurantForm(request.POST)
+        form = RestaurantForm(request.POST, request.FILES)
         if form.is_valid():
             restaurant = form.save(commit=False)
 
@@ -468,9 +458,34 @@ def contact(request):
                 [admin_email],
                 fail_silently=False,
             )
+            
+            # Send a ticket/request email to the user
+            ticket_subject = f"Your Ticket Request: {subject}"
+            ticket_body = f"""
+            Dear {name},
+            
+            Thank you for reaching out to us. We have received your message and will get back to you shortly.
+            
+            Here is a copy of your message:
+            Subject: {subject}
+            Message: {message}
+            
+            If you have any additional information to provide, feel free to reply to this email.
+            
+            Best regards,
+            The Foodpicker Team
+            """
+            
+            send_mail(
+                ticket_subject,
+                ticket_body,
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False,
+            )
         except Exception as e:
             # Log the error but don't prevent the message from being saved
-            print(f"Error sending notification email: {e}")
+            print(f"Error sending email: {e}")
         
         # Return success response for AJAX requests
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
