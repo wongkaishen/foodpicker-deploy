@@ -4,18 +4,14 @@ const navMenu = document.getElementById('nav-menu'),
       navClose = document.getElementById('nav-close')
 
 /* Menu show */
-if (navToggle) {
-    navToggle.addEventListener('click', () =>{
-       navMenu.classList.add('show-menu')
-    })
-}
+navToggle.addEventListener('click', () =>{
+   navMenu.classList.add('show-menu')
+})
 
 /* Menu hidden */
-if (navClose) {
-    navClose.addEventListener('click', () =>{
-       navMenu.classList.remove('show-menu')
-    })
-}
+navClose.addEventListener('click', () =>{
+   navMenu.classList.remove('show-menu')
+})
 
 /*=============== SEARCH ===============*/
 const search = document.getElementById('search'),
@@ -23,18 +19,14 @@ const search = document.getElementById('search'),
       searchClose = document.getElementById('search-close')
 
 /* Search show */
-if (searchBtn && search) {
-    searchBtn.addEventListener('click', () =>{
-       search.classList.add('show-search')
-    })
-}
+searchBtn.addEventListener('click', () =>{
+   search.classList.add('show-search')
+})
 
 /* Search hidden */
-if (searchClose && search) {
-    searchClose.addEventListener('click', () =>{
-       search.classList.remove('show-search')
-    })
-}
+searchClose.addEventListener('click', () =>{
+   search.classList.remove('show-search')
+})
 
 /*=============== LOGIN ===============*/
 const login = document.getElementById('login'),
@@ -42,15 +34,11 @@ const login = document.getElementById('login'),
       loginClose = document.getElementById('login-close')
 
 /* Login show */
-if (loginBtn && login) {
-    loginBtn.addEventListener('click', () =>{
-       login.classList.add('show-login')
-    })
-}
+loginBtn.addEventListener('click', () =>{
+   login.classList.add('show-login')
+})
 
 /* Login hidden */
-if (loginClose && login) {
-    loginClose.addEventListener('click', () =>{
-       login.classList.remove('show-login')
-    })
-}
+loginClose.addEventListener('click', () =>{
+   login.classList.remove('show-login')
+})
