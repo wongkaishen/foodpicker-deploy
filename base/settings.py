@@ -106,23 +106,9 @@ WSGI_APPLICATION = "base.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 
+# Heroku Postgres configuration
 DATABASES = {
-    # "default": {
-    #     "ENGINE": "django.contrib.gis.db.backends.postgis",  # Use the PostGIS engine
-    #     "NAME": "postgres",
-    #     "USER": "postgres",
-    #     "PASSWORD": env("PASSWORD"),
-    #     "HOST": "localhost",
-    #     "PORT": "5432",
-    # },
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",  # Use the PostGIS engine
-        "NAME": "postgres",
-        "USER": env("USER"),
-        "PASSWORD": env("PASSWORD"),
-        "HOST": env("HOST"),
-        "PORT": "6543",
-    }
+    "default": dj_database_url.config(conn_max_age=600, ssl_require=True)
 }
 
 # DATABASES = {
