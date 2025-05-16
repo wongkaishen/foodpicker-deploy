@@ -6,3 +6,5 @@ proj-data
 proj-bin
 libblas-dev
 liblapack-dev
+libblas3
+liblapack3
