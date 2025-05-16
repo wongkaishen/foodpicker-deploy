@@ -4,3 +4,5 @@ binutils
 libproj-dev
 proj-data
 proj-bin
+libblas-dev
+liblapack-dev
