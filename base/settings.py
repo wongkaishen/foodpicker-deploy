@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv
 import os
-
+from supabase import create_client, Client
 load_dotenv()
 from .info import *
 import environ
@@ -118,14 +118,15 @@ DATABASES = {
         "HOST": "aws-0-us-east-2.pooler.supabase.com",
         "PORT": "6543",
     },
-    "default": { #This is the heroku database
-        "ENGINE": "django.db.backends.postgresql_psycopg2",  # Use the PostGIS engine
-        "NAME": "d74gljk22usf4i",
-        "USER": "u9r2etkd05nvtj",
-        "PASSWORD": "pcd13f77d253b9335e0af7ba63f6ba63016ee11a46faf3a48a52e81350d6866ea",
-        "HOST": "cb5ajfjosdpmil.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com",
-        "PORT": "5432",
-    }
+
+    # "default": { #This is the heroku database
+    #     "ENGINE": "django.db.backends.postgresql_psycopg2",  # Use the PostGIS engine
+    #     "NAME": "d74gljk22usf4i",
+    #     "USER": "u9r2etkd05nvtj",
+    #     "PASSWORD": "pcd13f77d253b9335e0af7ba63f6ba63016ee11a46faf3a48a52e81350d6866ea",
+    #     "HOST": "cb5ajfjosdpmil.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com",
+    #     "PORT": "5432",
+    # }
 }
 
 # DATABASES = {
