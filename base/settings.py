@@ -11,14 +11,14 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import django_heroku
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 from .info import *
 import environ
-import dj_database_url
-import django_heroku    
+import dj_database_url  
 
 env = environ.Env()
 environ.Env.read_env()
@@ -44,7 +44,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = True
 
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*','foodpicker','foodpicker-4f62d90affdd.herokuapp.com']
 
 LOGIN_URL = "/signup/"
 
@@ -103,21 +103,29 @@ WSGI_APPLICATION = "base.wsgi.app"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    # "default": {
+    # "default": { #this is the postgres database
     #     "ENGINE": "django.contrib.gis.db.backends.postgis",  # Use the PostGIS engine
     #     "NAME": "postgres",
     #     "USER": "postgres",
-    #     "PASSWORD": env("PASSWORD"),
+    #     "PASSWORD": "wong",
     #     "HOST": "localhost",
     #     "PORT": "5432",
     # },
-    "default": {
+    "default": { #This is the supabase database
         "ENGINE": "django.db.backends.postgresql_psycopg2",  # Use the PostGIS engine
         "NAME": "postgres",
-        "USER": env("USER"),
-        "PASSWORD": env("PASSWORD"),
-        "HOST": env("HOST"),
+        "USER": "postgres.jeheqpjkquncbcsajnqv",
+        "PASSWORD": "wong",
+        "HOST": "aws-0-us-east-2.pooler.supabase.com",
         "PORT": "6543",
+    },
+    "default": { #This is the heroku database
+        "ENGINE": "django.db.backends.postgresql_psycopg2",  # Use the PostGIS engine
+        "NAME": "d74gljk22usf4i",
+        "USER": "u9r2etkd05nvtj",
+        "PASSWORD": "pcd13f77d253b9335e0af7ba63f6ba63016ee11a46faf3a48a52e81350d6866ea",
+        "HOST": "cb5ajfjosdpmil.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com",
+        "PORT": "5432",
     }
 }
 
@@ -167,7 +175,6 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 django_heroku.settings(locals())
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
