@@ -18,6 +18,7 @@ load_dotenv()
 from .info import *
 import environ
 import dj_database_url
+import django_heroku    
 
 env = environ.Env()
 environ.Env.read_env()
@@ -40,16 +41,13 @@ ADMIN_HOST_USER=env("ADMIN_HOST_USER")
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-
-# Set DEBUG based on environment variable for Heroku
-DEBUG = os.environ.get("DEBUG", "False") == "True"
+DEBUG = True
 
 
 ALLOWED_HOSTS = ['*']
 
 LOGIN_URL = "/signup/"
 
-    
 
 # Application definition
 
@@ -72,7 +70,6 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -99,16 +96,29 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "base.wsgi.application"
+WSGI_APPLICATION = "base.wsgi.app"
 
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-
-# Heroku Postgres configuration
 DATABASES = {
-    "default": dj_database_url.config(conn_max_age=600, ssl_require=True)
+    # "default": {
+    #     "ENGINE": "django.contrib.gis.db.backends.postgis",  # Use the PostGIS engine
+    #     "NAME": "postgres",
+    #     "USER": "postgres",
+    #     "PASSWORD": env("PASSWORD"),
+    #     "HOST": "localhost",
+    #     "PORT": "5432",
+    # },
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",  # Use the PostGIS engine
+        "NAME": "postgres",
+        "USER": env("USER"),
+        "PASSWORD": env("PASSWORD"),
+        "HOST": env("HOST"),
+        "PORT": "6543",
+    }
 }
 
 # DATABASES = {
@@ -150,16 +160,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "restaurant", "static")]
-
-# Whitenoise settings for serving static files
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_DIRS = (os.path.join(BASE_DIR, "restaurant\static"),)
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+
+django_heroku.settings(locals())
 
 
 # Default primary key field type
